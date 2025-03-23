@@ -17,6 +17,9 @@ import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
+import MyElections from "./pages/MyElections";
+import ElectionResults from "./pages/ElectionResults";
+
 import Home from "./pages/Dashboard/Home";
 
 export default function App() {
@@ -31,6 +34,8 @@ export default function App() {
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/myElections" element={<MyElections />} />
+            <Route path="/electionResults" element={<ElectionResults />} />
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}
