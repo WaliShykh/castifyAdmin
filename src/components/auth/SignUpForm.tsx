@@ -9,7 +9,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../common/Checkbox";
 import Button from "../ui/button/Button";
-import { countriesName } from "../../utils/constants";
+import { countriesName, gender } from "../../utils/constants";
 import Flatpickr from "react-flatpickr";
 import { toast } from "react-toastify";
 
@@ -29,6 +29,7 @@ export default function SignUpForm() {
       confirmPassword: "",
       dateOfBirth: "",
       agreeToTerms: false,
+      gender: "",
     },
     validationSchema: Yup.object({
       fname: Yup.string().required("First Name is required"),
@@ -58,6 +59,7 @@ export default function SignUpForm() {
           if (!value) return false;
           return differenceInYears(new Date(), new Date(value)) >= 18;
         }),
+      gender: Yup.string().required("Gender is required"),
       agreeToTerms: Yup.boolean()
         .oneOf([true], "You must agree to the Terms and Conditions")
         .required("You must agree to the Terms and Conditions"),
@@ -149,17 +151,6 @@ export default function SignUpForm() {
           </div>
 
           <div>
-            <Label>Select Country</Label>
-            <Select
-              options={countriesName}
-              placeholder="Select your country"
-              onChange={(value) => formik.setFieldValue("country", value)}
-            />
-            {formik.touched.country && formik.errors.country && (
-              <p className="text-red-500 text-sm">{formik.errors.country}</p>
-            )}
-          </div>
-          <div>
             <Label>CNIC</Label>
             <Input
               {...formik.getFieldProps("cnic")}
@@ -171,6 +162,31 @@ export default function SignUpForm() {
             )}
           </div>
 
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <Label>Select Country</Label>
+              <Select
+                options={countriesName}
+                placeholder="Select your country"
+                onChange={(value) => formik.setFieldValue("country", value)}
+              />
+              {formik.touched.country && formik.errors.country && (
+                <p className="text-red-500 text-sm">{formik.errors.country}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Gender</Label>
+              <Select
+                options={gender}
+                placeholder="Select your gender"
+                onChange={(value) => formik.setFieldValue("gender", value)}
+              />
+              {formik.touched.gender && formik.errors.gender && (
+                <p className="text-red-500 text-sm">{formik.errors.gender}</p>
+              )}
+            </div>
+          </div>
           <div>
             <Label>Password</Label>
             <div className="relative">

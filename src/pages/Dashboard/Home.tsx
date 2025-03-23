@@ -1,10 +1,12 @@
-import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
+import EcommerceMetrics from "./components/EcommerceMetrics";
+import PageMeta from "../../components/common/PageMeta";
+import MyElections from "./components/MyElections";
+import ElectionResults from "./components/ElectionResults";
+
 import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
-import RecentOrders from "../../components/ecommerce/RecentOrders";
 import DemographicCard from "../../components/ecommerce/DemographicCard";
-import PageMeta from "../../components/common/PageMeta";
 
 export default function Home() {
   return (
@@ -13,29 +15,34 @@ export default function Home() {
         title="React.js Ecommerce Dashboard | TailAdmin - React.js Admin Dashboard Template"
         description="This is React.js Ecommerce Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <div className="grid grid-cols-12 gap-4 md:gap-6">
-        <div className="col-span-12 space-y-6 xl:col-span-7">
-          <EcommerceMetrics />
-
-          <MonthlySalesChart />
-        </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <MonthlyTarget />
-        </div>
-
-        <div className="col-span-12">
-          <StatisticsChart />
-        </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <DemographicCard />
-        </div>
-
-        <div className="col-span-12 xl:col-span-7">
-          <RecentOrders />
-        </div>
+      <div>
+        <h2 className="text-3xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+          Hey Wali &#128075;
+        </h2>
       </div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-4 md:gap-6">
+          <EcommerceMetrics />
+        </div>
+        <MyElections />
+        <ElectionResults />
+      </div>
+      {/* 
+        <div className="col-span-12 xl:col-span-5">
+        <MonthlySalesChart />
+        </div>
+        
+        <div className="col-span-12">
+        <StatisticsChart />
+        </div>
+        
+        <div className="col-span-12 xl:col-span-5">
+        <DemographicCard /> 
+        </div>
+        
+        <div className="col-span-12 xl:col-span-7">
+        <MonthlyTarget />
+        </div> */}
     </>
   );
 }
