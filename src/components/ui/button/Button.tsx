@@ -10,7 +10,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
-  type?: "button" | "submit" | "reset"; // <-- Added this line
+  type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -22,7 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className = "",
   disabled = false,
-  loading = false, // <-- Default false
+  loading = false,
 }) => {
   const sizeClasses = {
     sm: "px-4 py-3 text-sm",
@@ -31,7 +31,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary:
-      "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300",
+      "bg-yellow-500 text-white shadow-theme-xs hover:bg-yellow-600 disabled:bg-brand-300",
     outline:
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
   };
@@ -41,7 +41,7 @@ const Button: React.FC<ButtonProps> = ({
       className={`inline-flex items-center justify-center gap-2 rounded-lg transition ${className} 
         ${sizeClasses[size]} ${variantClasses[variant]} 
         ${disabled || loading ? "cursor-not-allowed opacity-50" : ""}`}
-      onClick={!loading ? onClick : undefined} // Prevent clicks when loading
+      onClick={!loading ? onClick : undefined}
       disabled={disabled || loading}
     >
       {loading ? (

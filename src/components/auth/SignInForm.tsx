@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
+import Checkbox from "../common/Checkbox";
 import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
 
@@ -151,7 +151,7 @@ export default function SignInForm() {
                   </div>
                   <Link
                     to="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                    className="text-sm text-yellow-500 hover:text-yellow-600 dark:text-yellow-400"
                   >
                     Forgot password?
                   </Link>
@@ -179,7 +179,7 @@ export default function SignInForm() {
                 Don't have an account?{" "}
                 <Link
                   to="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  className="text-yellow-500 hover:text-yellow-600 dark:text-yellow-400"
                 >
                   Sign Up
                 </Link>

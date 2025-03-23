@@ -16,7 +16,7 @@ export default function AuthLayout({
 
         <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
           <img
-            className="h-screenw-screen h-screen object-cover"
+            className="w-screen h-screen object-cover"
             src={AuthImage}
             alt="Logo"
           />
