@@ -19,6 +19,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import MyElections from "./pages/MyElections";
 import ElectionResults from "./pages/ElectionResults";
+import ViewResults from "./pages/ViewResults";
 
 import Home from "./pages/Dashboard/Home";
 
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/myElections" element={<MyElections />} />
             <Route path="/electionResults" element={<ElectionResults />} />
+            <Route path="/viewResults" element={<ViewResults />} />
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}

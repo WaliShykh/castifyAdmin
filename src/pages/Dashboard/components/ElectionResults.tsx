@@ -7,6 +7,7 @@ import {
 } from "../../../components/ui/table";
 import Button from "../../../components/ui/button/Button";
 import Badge from "../../../components/ui/badge/Badge";
+import { useNavigate } from "react-router";
 
 interface Product {
   id: number;
@@ -22,7 +23,7 @@ const tableData: Product[] = [
     id: 1,
     name: "General Elections",
     winner: "Wali",
-    date: "2025-09=20",
+    date: "2025-09-20",
     status: "Pending",
     action: "Pending",
   },
@@ -30,7 +31,7 @@ const tableData: Product[] = [
     id: 2,
     name: "General Elections",
     winner: "Wali",
-    date: "2025-09=20",
+    date: "2025-09-20",
     status: "Canceled",
     action: "Canceled",
   },
@@ -38,7 +39,7 @@ const tableData: Product[] = [
     id: 3,
     name: "General Elections",
     winner: "Wali",
-    date: "2025-09=20",
+    date: "2025-09-20",
     status: "Announced",
     action: "Announced",
   },
@@ -46,7 +47,7 @@ const tableData: Product[] = [
     id: 4,
     name: "General Elections",
     winner: "Wali",
-    date: "2025-09=20",
+    date: "2025-09-20",
     status: "Canceled",
     action: "Unavailble",
   },
@@ -54,13 +55,14 @@ const tableData: Product[] = [
     id: 5,
     name: "General Elections",
     winner: "Wali",
-    date: "2025-09=20",
+    date: "2025-09-20",
     status: "Announced",
     action: "Announced",
   },
 ];
 
 export default function ElectionResults() {
+  const Navigate = useNavigate();
   return (
     <div className="overflow-y-auto rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.02] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -143,7 +145,14 @@ export default function ElectionResults() {
 
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
                   {product.action === "Announced" ? (
-                    <Button size="sm">View</Button>
+                    <Button
+                      onClick={() => {
+                        Navigate("/viewResults");
+                      }}
+                      size="sm"
+                    >
+                      View
+                    </Button>
                   ) : product.action === "Canceled" ? (
                     <Button size="sm" variant="outline" disabled>
                       Cancelled
