@@ -58,7 +58,7 @@ const WinnerCard = ({
               </div>
             </div>
 
-            <div className="flex justify-center items-center flex-row gap-3 text-left">
+            <div className="flex justify-center mt-5 items-center flex-row gap-3 text-left">
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {party}
               </p>
@@ -75,7 +75,7 @@ const WinnerCard = ({
       </div>
 
       <div className="order-3 xl:order-2">
-        <div className="grid grid-cols-2 mt-2">
+        <div className="grid grid-cols-2 mt-4">
           <InfoBlock label="Position Won" value={positionWon} />
           <InfoBlock label="Election Date" value={electionDate} />
         </div>
