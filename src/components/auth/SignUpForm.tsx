@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { differenceInYears } from "date-fns";
@@ -14,6 +14,8 @@ import Flatpickr from "react-flatpickr";
 import { toast } from "react-toastify";
 
 export default function SignUpForm() {
+  const Navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -80,6 +82,7 @@ export default function SignUpForm() {
         setLoading(false);
         alert(JSON.stringify(values, null, 2));
       }, 2000);
+      Navigate("/signin");
     },
   });
 
@@ -259,7 +262,7 @@ export default function SignUpForm() {
               {loading ? (
                 <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
               ) : (
-                "Sign in"
+                "Create Account"
               )}
             </Button>
           </div>
