@@ -2,11 +2,7 @@ import EcommerceMetrics from "./components/EcommerceMetrics";
 import PageMeta from "../../components/common/PageMeta";
 import MyElections from "./components/MyElections";
 import ElectionResults from "./components/ElectionResults";
-
-import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "../../components/ecommerce/StatisticsChart";
-import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
-import DemographicCard from "../../components/ecommerce/DemographicCard";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 
 export default function Home() {
   return (
@@ -15,6 +11,8 @@ export default function Home() {
         title="Castify - Online Voting Platform"
         description="Castify - A secure and efficient online voting platform"
       />
+      <PageBreadcrumb pageTitle="Dashboard" />
+
       <div>
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-white/90 mb-6">
           Hey Wali &#128075;

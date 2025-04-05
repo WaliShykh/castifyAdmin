@@ -1,10 +1,12 @@
 import Alert from "../../components/ui/alert/Alert";
 import ComponentCard from "../../components/common/ComponentCard";
 import CandidateCards from "./components/CandidateCards";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import StatisticsChart from "./components/StatisticsChart";
 const CastVote = () => {
   return (
     <div>
+      <PageBreadcrumb pageTitle="Cast Vote" />
       <Alert
         variant="info"
         title="Cast Your Vote"

@@ -2,10 +2,13 @@ import WinnerCard from "./components/WinnerCard";
 import RunnerUpCard from "./components/RunnerUpCard";
 import VoteDistributionChart from "./components/DonutChart";
 import BasicTables from "./components/BasicTables";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 
 const ViewResults = () => {
   return (
     <>
+      <PageBreadcrumb pageTitle="View Results" />
+
       <div className="grid grid-cols-1 gap-y-5 xl:grid-cols-3 xl:gap-x-5">
         <WinnerCard
           candidateName="Shiekh Wali Ahmad"
