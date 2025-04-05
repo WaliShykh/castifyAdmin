@@ -1,5 +1,5 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-import ElectionResultsTable from "../../../components/table/table";
+import ElectionResultsTable from "./ElectionResultsTable";
 
 export default function BasicTables() {
   return (

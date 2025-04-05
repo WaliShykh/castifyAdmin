@@ -148,7 +148,7 @@ export default function MyElections() {
                     <Button
                       size="sm"
                       onClick={() => {
-                        Navigate("/");
+                        Navigate("/castVote");
                       }}
                     >
                       Vote Now

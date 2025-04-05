@@ -22,6 +22,7 @@ import ElectionResults from "./pages/ElectionResults";
 import ViewResults from "./pages/ViewResults";
 
 import Home from "./pages/Dashboard/Home";
+import CastVote from "./pages/CastVote";
 
 export default function App() {
   return (
@@ -38,6 +39,8 @@ export default function App() {
             <Route path="/myElections" element={<MyElections />} />
             <Route path="/electionResults" element={<ElectionResults />} />
             <Route path="/viewResults" element={<ViewResults />} />
+            <Route path="/castVote" element={<CastVote />} />
+
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}
