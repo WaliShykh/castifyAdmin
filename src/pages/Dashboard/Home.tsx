@@ -25,22 +25,6 @@ export default function Home() {
         <MyElections />
         <ElectionResults />
       </div>
-      {/* 
-        <div className="col-span-12 xl:col-span-5">
-        <MonthlySalesChart />
-        </div>
-        
-        <div className="col-span-12">
-        <StatisticsChart />
-        </div>
-        
-        <div className="col-span-12 xl:col-span-5">
-        <DemographicCard /> 
-        </div>
-        
-        <div className="col-span-12 xl:col-span-7">
-        <MonthlyTarget />
-        </div> */}
     </>
   );
 }
