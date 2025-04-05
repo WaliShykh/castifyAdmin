@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import UserDropdown from "../components/header/UserDropdown";
+import logoDark from "../assets/images/logo/castifyDark.png";
+import logoLight from "../assets/images/logo/castifyLight.png";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -84,13 +86,15 @@ const AppHeader: React.FC = () => {
           <Link to="/" className="lg:hidden">
             <img
               className="dark:hidden"
-              src="./images/logo/logo.svg"
+              src={logoLight}
               alt="Logo"
+              width={120}
             />
             <img
               className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
+              src={logoDark}
               alt="Logo"
+              width={120}
             />
           </Link>
 

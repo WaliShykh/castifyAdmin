@@ -8,7 +8,10 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import logo from "../assets/images/logo/logo.png";
+import logoDark from "../assets/images/logo/castifyDark.png";
+import logoLight from "../assets/images/logo/castifyLight.png";
+import logoLightMini from "../assets/images/logo/castifyLight-mini.png";
+import logoDarkMini from "../assets/images/logo/castifyDark-mini.png";
 
 type NavItem = {
   name: string;
@@ -222,30 +225,47 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
+        className={`${
+          !isExpanded && !isHovered
+            ? "mt-3 p-2 lg:justify-center"
+            : "p-8 justify-start"
+        } flex`}
       >
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
                 className="dark:hidden"
-                src={logo}
+                src={logoLight}
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <img
                 className="hidden dark:block"
-                src={logo}
+                src={logoDark}
                 alt="Logo"
                 width={150}
                 height={40}
               />
             </>
           ) : (
-            <img src={logo} alt="Logo" width={32} height={32} />
+            <>
+              <img
+                className="dark:hidden"
+                src={logoLightMini}
+                alt="Logo"
+                width={40}
+                height={40}
+              />
+              <img
+                className="hidden dark:block"
+                src={logoDarkMini}
+                alt="Logo"
+                width={40}
+                height={40}
+              />
+            </>
           )}
         </Link>
       </div>

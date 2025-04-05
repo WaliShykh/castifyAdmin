@@ -7,6 +7,7 @@ import {
 } from "../../../components/ui/table";
 import Badge from "../../../components/ui/badge/Badge";
 import Button from "../../../components/ui/button/Button";
+import { useNavigate } from "react-router";
 
 interface Product {
   id: number;
@@ -61,6 +62,8 @@ const tableData: Product[] = [
 ];
 
 export default function MyElections() {
+  const Navigate = useNavigate();
+
   return (
     <div className="overflow-y-auto rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.02] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -142,7 +145,14 @@ export default function MyElections() {
                 </TableCell>
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
                   {product.action === "Vote Now" ? (
-                    <Button size="sm">Vote Now</Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        Navigate("/");
+                      }}
+                    >
+                      Vote Now
+                    </Button>
                   ) : product.action === "Cancelled" ? (
                     <Button size="sm" variant="outline" disabled>
                       Unavailable
