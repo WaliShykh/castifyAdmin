@@ -121,6 +121,15 @@ export default function StatisticsChart() {
           fontWeight: 500,
         },
       },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+      tooltip: {
+        enabled: true,
+      },
     },
   };
 
@@ -137,8 +146,8 @@ export default function StatisticsChart() {
         </div>
       </div>
 
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="min-w-[1000px] xl:min-w-full">
+      <div className="max-w-full">
+        <div className="min-w-full">
           {chartData.length > 0 ? (
             <Chart
               options={options}

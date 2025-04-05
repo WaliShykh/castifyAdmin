@@ -1,4 +1,3 @@
-// Define the Candidate interface
 export interface Candidate {
   id: number;
   user: {
@@ -10,7 +9,6 @@ export interface Candidate {
   votesReceived: number;
 }
 
-// This would come from an API in a real implementation
 export const candidates: Candidate[] = [
   {
     id: 1,
@@ -45,8 +43,6 @@ export const candidates: Candidate[] = [
   },
 ];
 
-// Generate monthly data based on current votes
-// In a real app, this would come from an API
 export const generateMonthlyData = (candidates: Candidate[]) => {
   const months = [
     "Jan",
