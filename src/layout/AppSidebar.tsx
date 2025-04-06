@@ -29,8 +29,8 @@ const navItems: NavItem[] = [
   },
   {
     icon: <ElectionIcon />,
-    name: "My Elections",
-    path: "/myElections",
+    name: "Elections",
+    path: "/elections",
   },
   {
     icon: <ResultIcon />,

@@ -5,7 +5,8 @@ import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import MyElections from "./pages/MyElections";
+import Elections from "./pages/Elections";
+
 import ElectionResults from "./pages/ElectionResults";
 import ViewResults from "./pages/ViewResults";
 import Home from "./pages/Dashboard/Home";
@@ -20,7 +21,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/myElections" element={<MyElections />} />
+            <Route path="/elections" element={<Elections />} />
             <Route path="/electionResults" element={<ElectionResults />} />
             <Route path="/viewResults" element={<ViewResults />} />
             <Route path="/castVote" element={<CastVote />} />
