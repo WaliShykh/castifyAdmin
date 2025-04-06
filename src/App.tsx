@@ -26,11 +26,9 @@ export default function App() {
             <Route path="/castVote" element={<CastVote />} />
           </Route>
 
-          {/* Auth Layout */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 
-          {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
