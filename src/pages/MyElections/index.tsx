@@ -1,4 +1,4 @@
-import MyElections from "../Dashboard/components/MyElections";
+import MyElections from "../Dashboard/components/RecentElections";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 
 const index = () => {

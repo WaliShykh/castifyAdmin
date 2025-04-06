@@ -12,56 +12,50 @@ import { useNavigate } from "react-router";
 interface Product {
   id: number;
   name: string;
-  date: string;
-  time: string;
-  status: "Voted" | "Pending" | "Canceled";
-  action: string;
+  StartDate: string;
+  EndDate: string;
+  status: "In-progress" | "Pending" | "Canceled";
 }
 
 const tableData: Product[] = [
   {
     id: 1,
     name: "General Elections",
-    date: "2025-10-09",
-    time: "8:00pm",
-    status: "Pending",
-    action: "Vote Now",
+    StartDate: "2025-10-09",
+    EndDate: "2025-10-10",
+    status: "Canceled",
   },
   {
     id: 2,
     name: "General Elections",
-    date: "2025-10-09",
-    time: "8:00pm",
-    status: "Canceled",
-    action: "Cancelled",
+    StartDate: "2025-10-09",
+    EndDate: "2025-10-10",
+    status: "In-progress",
   },
   {
     id: 3,
     name: "General Elections",
-    date: "2025-10-09",
-    time: "8:00pm",
-    status: "Voted",
-    action: "Voted",
+    StartDate: "2025-10-09",
+    EndDate: "2025-10-10",
+    status: "Pending",
   },
   {
     id: 4,
     name: "General Elections",
-    date: "2025-10-09",
-    time: "8:00pm",
-    status: "Canceled",
-    action: "Cancelled",
+    StartDate: "2025-10-09",
+    EndDate: "2025-10-10",
+    status: "In-progress",
   },
   {
     id: 5,
     name: "General Elections",
-    date: "2025-10-09",
-    time: "8:00pm",
-    status: "Voted",
-    action: "Voted",
+    StartDate: "2025-10-09",
+    EndDate: "2025-10-10",
+    status: "Pending",
   },
 ];
 
-export default function MyElections() {
+export default function RecentElections() {
   const Navigate = useNavigate();
 
   return (
@@ -80,13 +74,13 @@ export default function MyElections() {
                 isHeader
                 className="py-3 px-10 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Balloting Date
+                Start Date
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 px-10 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Due Time
+                End Date
               </TableCell>
               <TableCell
                 isHeader
@@ -116,16 +110,16 @@ export default function MyElections() {
                   </div>
                 </TableCell>
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.date}
+                  {product.StartDate}
                 </TableCell>
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.time}
+                  {product.EndDate}
                 </TableCell>
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
                   <Badge
                     size="sm"
                     color={
-                      product.status === "Voted"
+                      product.status === "In-progress"
                         ? "success"
                         : product.status === "Pending"
                         ? "warning"
@@ -136,24 +130,14 @@ export default function MyElections() {
                   </Badge>
                 </TableCell>
                 <TableCell className="py-3 px-10 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.action === "Vote Now" ? (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        Navigate("/castVote");
-                      }}
-                    >
-                      Vote Now
-                    </Button>
-                  ) : product.action === "Cancelled" ? (
-                    <Button size="sm" variant="outline" disabled>
-                      Unavailable
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="outline" disabled>
-                      Voted
-                    </Button>
-                  )}
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      Navigate("/castVote");
+                    }}
+                  >
+                    View Details
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -1,4 +1,4 @@
-import ElectionResults from "../Dashboard/components/ElectionResults";
+import ElectionResults from "./components/ElectionResults";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 
 const index = () => {
