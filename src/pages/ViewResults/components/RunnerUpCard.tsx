@@ -45,9 +45,6 @@ const RunnerUpCard = ({
           {position} Place
         </Badge>
       </div>
-      {/* <p className="text-lg font-semibold text-gray-800 dark:text-white/90">
-        {position} Place
-      </p> */}
       <div className="flex mt-2 items-center mb-4">
         <div className="flex flex-row gap-x-4 justify-between items-center">
           <div className="w-16 h-16 border border-gray-200 rounded-full dark:border-gray-800 overflow-hidden">

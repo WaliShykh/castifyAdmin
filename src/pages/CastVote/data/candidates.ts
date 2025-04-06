@@ -60,11 +60,8 @@ export const generateMonthlyData = (candidates: Candidate[]) => {
   ];
 
   return candidates.map((candidate) => {
-    // Generate a progression of votes over the year
-    // This is just for visualization - in a real app, this would be historical data
     const baseVotes = candidate.votesReceived;
     const monthlyData = months.map((_, index) => {
-      // Create a progression that ends at the current votesReceived value
       const progressionFactor = (index + 1) / 12;
       return Math.round(baseVotes * progressionFactor);
     });

@@ -110,7 +110,6 @@ export default function CandidateCards() {
 
             <div className="mb-6">
               <div className="flex items-center gap-4 mb-6">
-                {/* Candidate Image */}
                 <div className="w-16 h-16 overflow-hidden rounded-full border-2 border-primary flex-shrink-0">
                   <img
                     width={64}

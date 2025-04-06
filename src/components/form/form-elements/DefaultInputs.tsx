@@ -19,7 +19,7 @@ export default function DefaultInputs() {
   const [dateOfBirth, setDateOfBirth] = useState("");
 
   const handleDateChange = (date: Date[]) => {
-    setDateOfBirth(date[0].toLocaleDateString()); // Handle selected date and format it
+    setDateOfBirth(date[0].toLocaleDateString());
   };
   return (
     <ComponentCard title="Default Inputs">
@@ -64,10 +64,10 @@ export default function DefaultInputs() {
           <Label htmlFor="datePicker">Date Picker Input</Label>
           <div className="relative w-full flatpickr-wrapper">
             <Flatpickr
-              value={dateOfBirth} // Set the value to the state
-              onChange={handleDateChange} // Handle the date change
+              value={dateOfBirth}
+              onChange={handleDateChange}
               options={{
-                dateFormat: "Y-m-d", // Set the date format
+                dateFormat: "Y-m-d",
               }}
               placeholder="Select an option"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700  dark:focus:border-brand-800"
