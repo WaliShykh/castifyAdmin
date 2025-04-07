@@ -27,7 +27,6 @@ interface EditElectionModalProps {
   election: Election | null;
 }
 
-// Mock users for the voter selection
 const mockUsers = [
   { value: "user1", text: "John Doe" },
   { value: "user2", text: "Jane Smith" },
@@ -39,7 +38,6 @@ const mockUsers = [
   { value: "user8", text: "Lisa Anderson" },
 ];
 
-// Mock candidates
 const mockCandidates = [
   { value: "c1", text: "Alice Brown" },
   { value: "c2", text: "Bob Green" },
@@ -49,7 +47,6 @@ const mockCandidates = [
   { value: "c6", text: "Frank Miller" },
 ];
 
-// Validation schema
 const validationSchema = Yup.object().shape({
   name: Yup.string()
     .required("Election name is required")
@@ -86,10 +83,8 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
 
   if (!election) return null;
 
-  // Check if election can be edited (only if status is Upcoming)
   const canEdit = election.status === "Upcoming";
 
-  // Prepare initial values for Formik
   const initialValues = {
     name: election.name,
     type: election.type,
@@ -121,11 +116,9 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
-            // Prepare data for submission
             const submissionData = {
               ...election,
               ...values,
-              // Format dates to match the expected format in the table
               startDate: values.startDate
                 ? new Date(values.startDate).toISOString().split("T")[0]
                 : "",

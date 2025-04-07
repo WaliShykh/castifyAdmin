@@ -33,6 +33,11 @@ const navItems: NavItem[] = [
     path: "/elections",
   },
   {
+    icon: <ElectionIcon />,
+    name: "Candidates",
+    path: "/candidates",
+  },
+  {
     icon: <ResultIcon />,
     name: "Election Results",
     path: "/electionResults",

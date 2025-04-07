@@ -1,11 +1,17 @@
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
-interface VoteDistributionChartProps {
-  candidates: { name: string; percentage: number }[];
+interface Candidate {
+  name: string;
+  votes: number;
+  percentage: number;
 }
 
-const VoteDistributionChart = ({ candidates }: VoteDistributionChartProps) => {
+interface ResultsChartProps {
+  candidates: Candidate[];
+}
+
+const ResultsChart: React.FC<ResultsChartProps> = ({ candidates }) => {
   const candidateNames = candidates.map((candidate) => candidate.name);
   const votePercentages = candidates.map((candidate) => candidate.percentage);
 
@@ -25,7 +31,7 @@ const VoteDistributionChart = ({ candidates }: VoteDistributionChartProps) => {
       },
     },
     labels: candidateNames,
-    colors: ["#4F46E5", "#14B8A6", "#FACC15", "#EF4444"],
+    colors: ["#4F46E5", "#7C3AED", "#EC4899", "#8B5CF6"],
     legend: {
       show: true,
       position: "bottom",
@@ -43,7 +49,6 @@ const VoteDistributionChart = ({ candidates }: VoteDistributionChartProps) => {
     tooltip: {
       enabled: true,
       theme: "light",
-
       style: {
         fontSize: "12px",
       },
@@ -58,20 +63,15 @@ const VoteDistributionChart = ({ candidates }: VoteDistributionChartProps) => {
   };
 
   return (
-    <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800">
-      <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-20">
-        Results
-      </h4>
-      <div className="w-full flex flex-col items-center">
-        <Chart
-          options={options}
-          series={votePercentages}
-          type="pie"
-          width="400"
-        />
-      </div>
+    <div className="w-full flex flex-col items-center">
+      <Chart
+        options={options}
+        series={votePercentages}
+        type="pie"
+        width="400"
+      />
     </div>
   );
 };
 
-export default VoteDistributionChart;
+export default ResultsChart;

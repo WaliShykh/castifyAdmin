@@ -16,7 +16,6 @@ interface CreateElectionModalProps {
   onSave: (electionData: any) => void;
 }
 
-// Default election types
 const defaultElectionTypes = [
   { value: "student_council", label: "Student Council" },
   { value: "company_poll", label: "Company Poll" },
@@ -25,7 +24,6 @@ const defaultElectionTypes = [
   { value: "class_representative", label: "Class Representative" },
 ];
 
-// Mock users for the voter selection
 const mockUsers = [
   { value: "user1", text: "John Doe" },
   { value: "user2", text: "Jane Smith" },
@@ -34,7 +32,6 @@ const mockUsers = [
   { value: "user5", text: "Michael Wilson" },
 ];
 
-// Validation schema
 const validationSchema = Yup.object().shape({
   name: Yup.string()
     .required("Election name is required")
@@ -100,11 +97,9 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
-            // Prepare data for submission
             const submissionData = {
               ...values,
               status: "Upcoming",
-              // Format dates to match the expected format in the table
               startDate: values.startDate
                 ? new Date(values.startDate).toISOString().split("T")[0]
                 : "",
