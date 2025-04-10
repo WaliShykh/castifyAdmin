@@ -10,6 +10,7 @@ import Elections from "./pages/Elections";
 import ElectionResults from "./pages/ElectionResults";
 import Home from "./pages/Dashboard/Home";
 import ElectionResultView from "./pages/ElectionResults/components/ElectionResultView";
+import VotersPage from "./pages/Voters";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
               element={<ElectionResultView />}
             />
             <Route path="/candidates" element={<Candidates />} />
+            <Route path="/voters" element={<VotersPage />} />
           </Route>
 
           <Route path="/signin" element={<SignIn />} />

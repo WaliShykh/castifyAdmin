@@ -58,6 +58,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
   onClose,
   onSave,
 }) => {
+  //@ts-ignore
   const [candidatesFile, setCandidatesFile] = useState<File | null>(null);
   const [electionTypes, setElectionTypes] = useState(defaultElectionTypes);
   const [showTypePopup, setShowTypePopup] = useState(false);

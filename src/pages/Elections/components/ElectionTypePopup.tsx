@@ -3,7 +3,6 @@ import { Modal } from "../../../components/ui/modal";
 import Form from "../../../components/form/Form";
 import InputField from "../../../components/form/input/InputField";
 import Button from "../../../components/ui/button/Button";
-import { X } from "lucide-react";
 
 interface ElectionType {
   value: string;

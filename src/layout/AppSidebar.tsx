@@ -7,6 +7,8 @@ import {
   ChevronDownIcon,
   GridIcon,
   UserCircleIcon,
+  GroupIcon,
+  UserIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import logoDark from "../assets/images/logo/castifyDark.png";
@@ -33,9 +35,14 @@ const navItems: NavItem[] = [
     path: "/elections",
   },
   {
-    icon: <ElectionIcon />,
+    icon: <UserIcon />,
     name: "Candidates",
     path: "/candidates",
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Voters",
+    path: "/voters",
   },
   {
     icon: <ResultIcon />,

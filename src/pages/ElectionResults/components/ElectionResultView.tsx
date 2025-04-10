@@ -66,6 +66,7 @@ const mockElectionData: Record<string, ElectionData> = {
 
 const ElectionResultView = () => {
   const { id } = useParams<{ id: string }>();
+  //@ts-ignore
   const [election, setElection] = useState<ElectionData | null>(
     id && mockElectionData[id] ? mockElectionData[id] : null
   );

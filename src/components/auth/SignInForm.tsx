@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { EyeCloseIcon, EyeIcon } from "../../icons";
+import { Eye, EyeOff } from "lucide-react";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../common/Checkbox";
@@ -30,46 +30,51 @@ export default function SignInForm() {
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
+      password: Yup.string()
+        .min(8, "Password must be at least 8 characters")
+        .required("Password is required"),
     }),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: (values) => {
-      toast.success("Log in successful!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: false,
-        progress: undefined,
-        theme: "light",
-      });
       setLoading(true);
+      // Simulate API call
       setTimeout(() => {
+        toast.success("Login successful!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
         setLoading(false);
-        alert(JSON.stringify(values, null, 2));
-      }, 2000);
+        // Redirect to dashboard or handle login logic
+        console.log("Login values:", values);
+      }, 1500);
     },
   });
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 p-8 lg:p-12">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
-          <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Sign In
+          <div className="mb-6">
+            <h1 className="mb-2 text-2xl font-bold text-gray-800 dark:text-white">
+              Welcome Back
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Sign in to your admin account
             </p>
           </div>
           <div>
             <form onSubmit={formik.handleSubmit}>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div>
                   <Label>
-                    CNIC <span className="text-error-500">*</span>
+                    CNIC <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     type="text"
@@ -79,27 +84,29 @@ export default function SignInForm() {
                     value={formik.values.cnic}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
+                    className="w-full"
                   />
                   {formik.touched.cnic && formik.errors.cnic ? (
-                    <p className="text-error-500 text-sm">
+                    <p className="mt-1 text-sm text-red-500">
                       {formik.errors.cnic}
                     </p>
                   ) : null}
                 </div>
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     type="email"
                     name="email"
-                    placeholder="info@gmail.com"
+                    placeholder="admin@example.com"
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
+                    className="w-full"
                   />
                   {formik.touched.email && formik.errors.email ? (
-                    <p className="text-error-500 text-sm">
+                    <p className="mt-1 text-sm text-red-500">
                       {formik.errors.email}
                     </p>
                   ) : null}
@@ -107,7 +114,7 @@ export default function SignInForm() {
 
                 <div>
                   <Label>
-                    Password <span className="text-error-500">*</span>
+                    Password <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -117,38 +124,36 @@ export default function SignInForm() {
                       value={formik.values.password}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      className="w-full pr-10"
                     />
-                    <span
+                    <button
+                      type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     >
-                      {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      )}
-                    </span>
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                   {formik.touched.password && formik.errors.password ? (
-                    <p className="text-error-500 text-sm">
+                    <p className="mt-1 text-sm text-red-500">
                       {formik.errors.password}
                     </p>
                   ) : null}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       checked={isChecked}
                       onChange={() => setIsChecked(!isChecked)}
                     />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Remember me
                     </span>
                   </div>
                   <Link
-                    to="/reset-password"
-                    className="text-sm text-yellow-500 hover:text-yellow-600 dark:text-yellow-400"
+                    to="/forgot-password"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400"
                   >
                     Forgot password?
                   </Link>
@@ -157,12 +162,12 @@ export default function SignInForm() {
                 <div>
                   <Button
                     className="w-full flex items-center justify-center"
-                    size="sm"
+                    size="md"
                     type="submit"
                     disabled={loading}
                   >
                     {loading ? (
-                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                      <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                     ) : (
                       "Sign in"
                     )}
@@ -171,14 +176,14 @@ export default function SignInForm() {
               </div>
             </form>
 
-            <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
                 <Link
                   to="/signup"
-                  className="text-yellow-500 hover:text-yellow-600 dark:text-yellow-400"
+                  className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400"
                 >
-                  Sign Up
+                  Sign up
                 </Link>
               </p>
             </div>
