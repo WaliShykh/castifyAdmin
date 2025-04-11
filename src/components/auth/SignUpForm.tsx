@@ -45,7 +45,6 @@ export default function SignUpForm() {
     validateOnBlur: true,
     onSubmit: (values) => {
       setLoading(true);
-      // Simulate API call
       setTimeout(() => {
         toast.success("Account created successfully!", {
           position: "top-right",
@@ -58,7 +57,6 @@ export default function SignUpForm() {
           theme: "light",
         });
         setLoading(false);
-        // Redirect to dashboard or handle signup logic
         console.log("Signup values:", values);
       }, 1500);
     },

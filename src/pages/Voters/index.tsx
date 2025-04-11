@@ -6,7 +6,6 @@ import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import InputField from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
 
-// Define Voter interface
 interface Voter {
   id: string;
   serialNo: string;
@@ -18,14 +17,12 @@ interface Voter {
   status: string;
 }
 
-// Mock data for elections
 const mockElections = [
   { id: "1", name: "Presidential Election 2023" },
   { id: "2", name: "Local Council Election 2023" },
   { id: "3", name: "Student Union Election 2023" },
 ];
 
-// Mock data for voters
 const mockVoters = [
   {
     id: "1",
@@ -85,9 +82,9 @@ const VotersPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  //@ts-ignore
   const [voters, setVoters] = useState(mockVoters);
 
-  // Filter voters based on search term and filters
   const filteredVoters = mockVoters.filter((voter) => {
     const matchesSearch =
       searchTerm === "" ||
@@ -104,19 +101,15 @@ const VotersPage = () => {
     return matchesSearch && matchesElection && matchesStatus;
   });
 
-  // Handle bulk actions
   const handleUploadCSV = () => {
-    // Implement CSV upload logic
     console.log("Upload CSV");
   };
 
   const handleDownloadCSV = () => {
-    // Implement CSV download logic
     console.log("Download CSV");
   };
 
   const handleEditVoter = (updatedVoter: Voter) => {
-    // Update the voter in the list
     const updatedVoters = mockVoters.map((voter) =>
       voter.id === updatedVoter.id ? updatedVoter : voter
     );
@@ -124,7 +117,6 @@ const VotersPage = () => {
   };
 
   const handleDeleteVoter = (voterId: string) => {
-    // Remove the voter from the list
     const updatedVoters = mockVoters.filter((voter) => voter.id !== voterId);
     setVoters(updatedVoters);
   };

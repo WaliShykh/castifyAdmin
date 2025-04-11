@@ -38,7 +38,6 @@ export default function SignInForm() {
     validateOnBlur: true,
     onSubmit: (values) => {
       setLoading(true);
-      // Simulate API call
       setTimeout(() => {
         toast.success("Login successful!", {
           position: "top-right",
@@ -51,7 +50,6 @@ export default function SignInForm() {
           theme: "light",
         });
         setLoading(false);
-        // Redirect to dashboard or handle login logic
         console.log("Login values:", values);
       }, 1500);
     },

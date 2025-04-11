@@ -6,7 +6,6 @@ import InputField from "../../../components/form/input/InputField";
 import Label from "../../../components/form/Label";
 import Select from "../../../components/form/Select";
 
-// Mock data for elections
 const mockElections = [
   { id: "1", name: "Presidential Election 2023" },
   { id: "2", name: "Local Council Election 2023" },
@@ -47,10 +46,8 @@ const EditVoterModal: React.FC<EditVoterModalProps> = ({
 }) => {
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Create updated voter object
       const updatedVoter = {
         ...voter,
         name: values.name,
@@ -63,12 +60,10 @@ const EditVoterModal: React.FC<EditVoterModalProps> = ({
         status: values.status,
       };
 
-      // Call onSave if provided
       if (onSave) {
         onSave(updatedVoter);
       }
 
-      // Close modal
       onClose();
     } catch (error) {
       console.error("Error updating voter:", error);

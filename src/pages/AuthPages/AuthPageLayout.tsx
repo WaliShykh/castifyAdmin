@@ -10,12 +10,10 @@ export default function AuthLayout({
   return (
     <div className="relative min-h-screen bg-white dark:bg-gray-900">
       <div className="flex flex-col lg:flex-row min-h-screen">
-        {/* Theme toggler */}
         <div className="fixed z-50 top-6 right-6">
           <ThemeTogglerTwo />
         </div>
 
-        {/* Left side - Image */}
         <div className="hidden lg:block lg:w-1/2 relative">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 z-10"></div>
           <img
@@ -33,7 +31,6 @@ export default function AuthLayout({
           </div>
         </div>
 
-        {/* Right side - Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center">
           {children}
         </div>

@@ -6,7 +6,6 @@ import InputField from "../../../components/form/input/InputField";
 import Label from "../../../components/form/Label";
 import Select from "../../../components/form/Select";
 
-// Mock data for elections
 const mockElections = [
   { id: "1", name: "Presidential Election 2023" },
   { id: "2", name: "Local Council Election 2023" },
@@ -32,7 +31,6 @@ const AddVoterModal: React.FC<AddVoterModalProps> = ({ isOpen, onClose }) => {
     { setSubmitting, resetForm }: any
   ) => {
     try {
-      // Add your voter creation logic here
       console.log("Creating voter:", values);
       resetForm();
       onClose();
