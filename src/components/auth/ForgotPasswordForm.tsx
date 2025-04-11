@@ -2,37 +2,29 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Eye, EyeOff } from "lucide-react";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../common/Checkbox";
 import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
 
-export default function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+export default function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: "",
     },
     validationSchema: Yup.object({
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
-      password: Yup.string()
-        .min(8, "Password must be at least 8 characters")
-        .required("Password is required"),
     }),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: (values) => {
       setLoading(true);
       setTimeout(() => {
-        toast.success("Login successful!", {
+        toast.success("Password reset link has been sent to your email!", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -43,7 +35,7 @@ export default function SignInForm() {
           theme: "light",
         });
         setLoading(false);
-        console.log("Login values:", values);
+        console.log("Forgot password values:", values);
       }, 1500);
     },
   });
@@ -54,10 +46,10 @@ export default function SignInForm() {
         <div>
           <div className="mb-6">
             <h1 className="mb-2 text-2xl font-bold text-gray-800 dark:text-white">
-              Welcome Back
+              Forgot Password
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Sign in to your admin account
+              Enter your email address to reset your password
             </p>
           </div>
           <div>
@@ -84,53 +76,6 @@ export default function SignInForm() {
                 </div>
 
                 <div>
-                  <Label>
-                    Password <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      placeholder="Enter your password"
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {formik.touched.password && formik.errors.password ? (
-                    <p className="mt-1 text-sm text-red-500">
-                      {formik.errors.password}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={() => setIsChecked(!isChecked)}
-                    />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Remember me
-                    </span>
-                  </div>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-500 dark:hover:text-yellow-400"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-
-                <div>
                   <Button
                     className="w-full flex items-center justify-center"
                     size="md"
@@ -140,7 +85,7 @@ export default function SignInForm() {
                     {loading ? (
                       <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                     ) : (
-                      "Sign in"
+                      "Send Reset Link"
                     )}
                   </Button>
                 </div>
@@ -149,12 +94,12 @@ export default function SignInForm() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{" "}
+                Remember your password?{" "}
                 <Link
-                  to="/signup"
+                  to="/signin"
                   className="font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-500 dark:hover:text-yellow-400"
                 >
-                  Sign up
+                  Sign in
                 </Link>
               </p>
             </div>

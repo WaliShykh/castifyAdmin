@@ -11,6 +11,7 @@ import ElectionResults from "./pages/ElectionResults";
 import Home from "./pages/Dashboard/Home";
 import ElectionResultView from "./pages/ElectionResults/components/ElectionResultView";
 import VotersPage from "./pages/Voters";
+import ForgotPasswordForm from "./pages/AuthPages/ForgetPassword";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           </Route>
 
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
           <Route path="/signup" element={<SignUp />} />
 
           <Route path="*" element={<NotFound />} />
