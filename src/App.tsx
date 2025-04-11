@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
+import ForgotPasswordForm from "./pages/AuthPages/ForgetPassword";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/AdminProfile";
 import AppLayout from "./layout/AppLayout";
@@ -11,7 +12,6 @@ import ElectionResults from "./pages/ElectionResults";
 import Home from "./pages/Dashboard/Home";
 import ElectionResultView from "./pages/ElectionResults/components/ElectionResultView";
 import VotersPage from "./pages/Voters";
-import ForgotPasswordForm from "./pages/AuthPages/ForgetPassword";
 
 export default function App() {
   return (
