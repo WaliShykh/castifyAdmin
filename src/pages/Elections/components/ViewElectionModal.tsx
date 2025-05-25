@@ -1,12 +1,11 @@
 import { Modal } from "../../../components/ui/modal";
 import Badge from "../../../components/ui/badge/Badge";
 import { format } from "date-fns";
-import { Calendar, Users, UserCheck, Clock } from "lucide-react";
+import { Users, UserCheck, Clock } from "lucide-react";
 
 interface Election {
   id: number;
   name: string;
-  type: string;
   status: "Upcoming" | "Ongoing" | "Ended";
   totalCandidates: number;
   totalVoters: number;
@@ -60,6 +59,10 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
     ? format(new Date(election.startDate), "MMM dd, yyyy hh:mm a")
     : "Not set";
 
+  const formattedEndDate = election.endDate
+    ? format(new Date(election.endDate), "MMM dd, yyyy hh:mm a")
+    : "Not set";
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Upcoming":
@@ -99,20 +102,6 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start space-x-3">
-                  <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <Calendar className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Type
-                    </p>
-                    <p className="font-medium text-gray-800 dark:text-white">
-                      {election.type}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
                   <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <Clock className="h-5 w-5 text-purple-500 dark:text-purple-400" />
                   </div>
@@ -122,6 +111,19 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white">
                       {formattedStartDate}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <Clock className="h-5 w-5 text-red-500 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      End Date
+                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white">
+                      {formattedEndDate}
                     </p>
                   </div>
                 </div>

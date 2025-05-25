@@ -98,7 +98,7 @@ const ViewCandidateModal: React.FC<ViewCandidateModalProps> = ({
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Election
+                Recent Elections
               </p>
               <p className="font-medium text-gray-800 dark:text-white">
                 {candidate.election}

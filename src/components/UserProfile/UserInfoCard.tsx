@@ -84,15 +84,6 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                CNIC
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                2131-10936339-8
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Country
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">

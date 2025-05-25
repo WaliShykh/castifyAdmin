@@ -7,14 +7,6 @@ import Select from "../../../components/auth/components/Select";
 import Button from "../../../components/ui/button/Button";
 import { X } from "lucide-react";
 
-const mockElections = [
-  { id: 1, name: "Student Council Election 2023" },
-  { id: 2, name: "Employee Union Election" },
-  { id: 3, name: "Department Head Election" },
-  { id: 4, name: "Class Representative Election" },
-  { id: 5, name: "Faculty Senate Election" },
-];
-
 interface CreateCandidateModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,7 +15,7 @@ interface CreateCandidateModalProps {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  election: Yup.string().required("Election is required"),
+  party: Yup.string().required("Party is required"),
   image: Yup.string().required("Image URL is required"),
   status: Yup.string().required("Status is required"),
 });
@@ -66,7 +58,7 @@ const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
       <Formik
         initialValues={{
           name: "",
-          election: "",
+          party: "",
           image: "",
           status: "Active",
         }}
@@ -96,27 +88,22 @@ const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
 
             <div>
               <label
-                htmlFor="election"
+                htmlFor="party"
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Election
+                Party
               </label>
-              <Select
-                options={[
-                  { value: "", label: "Select an election" },
-                  ...mockElections.map((election) => ({
-                    value: election.name,
-                    label: election.name,
-                  })),
-                ]}
-                placeholder="Select an election"
-                onChange={(value: string) => setFieldValue("election", value)}
+              <Field
+                as={InputField}
+                id="party"
+                name="party"
+                placeholder="Enter party name"
                 className={
-                  errors.election && touched.election ? "border-red-500" : ""
+                  errors.party && touched.party ? "border-red-500" : ""
                 }
               />
-              {errors.election && touched.election && (
-                <p className="mt-1 text-xs text-red-500">{errors.election}</p>
+              {errors.party && touched.party && (
+                <p className="mt-1 text-xs text-red-500">{errors.party}</p>
               )}
             </div>
 

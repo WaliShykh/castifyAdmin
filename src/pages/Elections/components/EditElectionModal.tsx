@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Modal } from "../../../components/ui/modal";
-import Select from "../../../components/form/Select";
-import MultiSelect from "../../../components/form/MultiSelect";
 import InputField from "../../../components/form/input/InputField";
 import Button from "../../../components/ui/button/Button";
 import { Formik, Form as FormikForm, Field } from "formik";
 import * as Yup from "yup";
+import CandidateSelectionModal from "./CandidateSelectionModal";
 
 interface Election {
   id: number;
@@ -26,17 +25,6 @@ interface EditElectionModalProps {
   onSave: (electionData: any) => void;
   election: Election | null;
 }
-
-const mockUsers = [
-  { value: "user1", text: "John Doe" },
-  { value: "user2", text: "Jane Smith" },
-  { value: "user3", text: "Robert Johnson" },
-  { value: "user4", text: "Emily Davis" },
-  { value: "user5", text: "Michael Wilson" },
-  { value: "user6", text: "Sarah Johnson" },
-  { value: "user7", text: "David Williams" },
-  { value: "user8", text: "Lisa Anderson" },
-];
 
 const mockCandidates = [
   { value: "c1", text: "Alice Brown" },
@@ -63,7 +51,6 @@ const validationSchema = Yup.object().shape({
         return new Date(value) > new Date(startDate);
       }
     ),
-  voters: Yup.array().min(1, "At least one voter must be selected"),
   candidates: Yup.array().min(1, "At least one candidate must be selected"),
 });
 
@@ -73,13 +60,7 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
   onSave,
   election,
 }) => {
-  const [electionTypes] = useState([
-    { value: "student_council", label: "Student Council" },
-    { value: "company_poll", label: "Company Poll" },
-    { value: "department_head", label: "Department Head" },
-    { value: "faculty_senate", label: "Faculty Senate" },
-    { value: "class_representative", label: "Class Representative" },
-  ]);
+  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
 
   if (!election) return null;
 
@@ -94,7 +75,6 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
     endDate: election.endDate
       ? new Date(election.endDate).toISOString().slice(0, 16)
       : "",
-    voters: election.voters?.map((v) => v.id) || [],
     candidates: election.candidates?.map((c) => c.id) || [],
   };
 
@@ -133,106 +113,135 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
           }}
         >
           {({ errors, touched, setFieldValue, values }) => (
-            <FormikForm className="space-y-5">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Election Name
-                </label>
-                <Field
-                  as={InputField}
-                  type="text"
-                  name="name"
-                  placeholder="Enter election name"
-                />
-                {errors.name && touched.name && (
-                  <div className="mt-1 text-sm text-red-500">{errors.name}</div>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Type
-                </label>
-                <Select
-                  options={electionTypes}
-                  placeholder="Select election type"
-                  onChange={(value: string) => setFieldValue("type", value)}
-                  defaultValue={values.type}
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Election type cannot be changed after creation
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <>
+              <FormikForm className="space-y-5">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Start Date/Time
+                    Election Name
                   </label>
                   <Field
                     as={InputField}
-                    type="datetime-local"
-                    name="startDate"
+                    type="text"
+                    name="name"
+                    placeholder="Enter election name"
                   />
-                  {errors.startDate && touched.startDate && (
+                  {errors.name && touched.name && (
                     <div className="mt-1 text-sm text-red-500">
-                      {errors.startDate}
+                      {errors.name}
                     </div>
                   )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      Start Date/Time
+                    </label>
+                    <Field
+                      as={InputField}
+                      type="datetime-local"
+                      name="startDate"
+                    />
+                    {errors.startDate && touched.startDate && (
+                      <div className="mt-1 text-sm text-red-500">
+                        {errors.startDate}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      End Date/Time
+                    </label>
+                    <Field
+                      as={InputField}
+                      type="datetime-local"
+                      name="endDate"
+                    />
+                    {errors.endDate && touched.endDate && (
+                      <div className="mt-1 text-sm text-red-500">
+                        {errors.endDate}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    End Date/Time
+                    Candidates
                   </label>
-                  <Field as={InputField} type="datetime-local" name="endDate" />
-                  {errors.endDate && touched.endDate && (
-                    <div className="mt-1 text-sm text-red-500">
-                      {errors.endDate}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex flex-wrap gap-2">
+                        {values.candidates.length > 0 ? (
+                          values.candidates.map((candidateId) => {
+                            const candidate = mockCandidates.find(
+                              (c) => c.value === candidateId
+                            );
+                            return (
+                              <div
+                                key={candidateId}
+                                className="flex items-center gap-2 px-2 py-1 text-sm bg-gray-100 rounded-full dark:bg-gray-800"
+                              >
+                                <span>{candidate?.text}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFieldValue(
+                                      "candidates",
+                                      values.candidates.filter(
+                                        (id) => id !== candidateId
+                                      )
+                                    );
+                                  }}
+                                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <span className="text-gray-500 dark:text-gray-400">
+                            No candidates selected
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsCandidateModalOpen(true)}
+                      >
+                        Select Candidates
+                      </Button>
                     </div>
-                  )}
+                    {errors.candidates && touched.candidates && (
+                      <div className="mt-1 text-sm text-red-500">
+                        {errors.candidates}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <MultiSelect
-                  label="Assign Voters"
-                  options={mockUsers}
-                  defaultSelected={values.voters}
-                  onChange={(selected: string[]) =>
-                    setFieldValue("voters", selected)
-                  }
-                />
-                {errors.voters && touched.voters && (
-                  <div className="mt-1 text-sm text-red-500">
-                    {errors.voters}
-                  </div>
-                )}
-              </div>
+                <div className="flex justify-end space-x-3 pt-4">
+                  <Button type="button" variant="outline" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save Changes</Button>
+                </div>
+              </FormikForm>
 
-              <div>
-                <MultiSelect
-                  label="Candidates"
-                  options={mockCandidates}
-                  defaultSelected={values.candidates}
-                  onChange={(selected: string[]) =>
-                    setFieldValue("candidates", selected)
-                  }
-                />
-                {errors.candidates && touched.candidates && (
-                  <div className="mt-1 text-sm text-red-500">
-                    {errors.candidates}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button type="submit">Save Changes</Button>
-              </div>
-            </FormikForm>
+              <CandidateSelectionModal
+                isOpen={isCandidateModalOpen}
+                onClose={() => setIsCandidateModalOpen(false)}
+                onSave={(selectedCandidates) => {
+                  setFieldValue("candidates", selectedCandidates);
+                  setIsCandidateModalOpen(false);
+                }}
+                candidates={mockCandidates}
+                defaultSelected={values.candidates}
+              />
+            </>
           )}
         </Formik>
       ) : (

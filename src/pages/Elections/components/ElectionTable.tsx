@@ -11,11 +11,11 @@ import { useState } from "react";
 import CreateElectionButton from "./CreateElectionButton";
 import ViewElectionModal from "./ViewElectionModal";
 import EditElectionModal from "./EditElectionModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface Election {
   id: number;
   name: string;
-  type: string;
   status: "Upcoming" | "Ongoing" | "Ended";
   totalCandidates: number;
   totalVoters: number;
@@ -30,7 +30,6 @@ const tableData: Election[] = [
   {
     id: 1,
     name: "Student Council Election 2023",
-    type: "Student",
     status: "Upcoming",
     totalCandidates: 5,
     totalVoters: 1200,
@@ -40,7 +39,6 @@ const tableData: Election[] = [
   {
     id: 2,
     name: "Employee Union Election",
-    type: "Employee",
     status: "Ongoing",
     totalCandidates: 3,
     totalVoters: 500,
@@ -50,7 +48,6 @@ const tableData: Election[] = [
   {
     id: 3,
     name: "Department Head Election",
-    type: "Employee",
     status: "Ended",
     totalCandidates: 4,
     totalVoters: 300,
@@ -60,7 +57,6 @@ const tableData: Election[] = [
   {
     id: 4,
     name: "Class Representative Election",
-    type: "Student",
     status: "Upcoming",
     totalCandidates: 8,
     totalVoters: 800,
@@ -70,7 +66,6 @@ const tableData: Election[] = [
   {
     id: 5,
     name: "Faculty Senate Election",
-    type: "Employee",
     status: "Ongoing",
     totalCandidates: 6,
     totalVoters: 150,
@@ -86,6 +81,10 @@ export default function ElectionResults() {
   >(undefined);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [electionToDelete, setElectionToDelete] = useState<Election | null>(
+    null
+  );
 
   const handleViewClick = (election: Election) => {
     setSelectedElection(election);
@@ -95,6 +94,19 @@ export default function ElectionResults() {
   const handleEditClick = (election: Election) => {
     setSelectedElection(election);
     setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (election: Election) => {
+    setElectionToDelete(election);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (electionToDelete) {
+      handleDeleteElection(electionToDelete.id);
+      setIsDeleteModalOpen(false);
+      setElectionToDelete(null);
+    }
   };
 
   const handleSaveElection = (electionData: any) => {
@@ -115,7 +127,6 @@ export default function ElectionResults() {
             ? Math.max(...elections.map((e) => e.id)) + 1
             : 1,
         name: electionData.name,
-        type: electionData.type,
         status: electionData.status || "Upcoming",
         totalCandidates: electionData.candidates?.length || 0,
         totalVoters: electionData.voters?.length || 0,
@@ -152,12 +163,6 @@ export default function ElectionResults() {
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
                 Election Name
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-8 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Type
               </TableCell>
               <TableCell
                 isHeader
@@ -210,9 +215,7 @@ export default function ElectionResults() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="py-3 px-8 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {election.type}
-                </TableCell>
+
                 <TableCell className="py-3 px-4 text-gray-500 text-theme-sm dark:text-gray-400">
                   <Badge
                     size="sm"
@@ -256,7 +259,7 @@ export default function ElectionResults() {
                       <Pencil size={18} />
                     </button>
                     <button
-                      onClick={() => handleDeleteElection(election.id)}
+                      onClick={() => handleDeleteClick(election)}
                       className="text-red-500 hover:text-red-700 transition-colors"
                       title="Delete Election"
                     >
@@ -280,7 +283,19 @@ export default function ElectionResults() {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveElection}
-        election={selectedElection || null}
+        election={
+          selectedElection ? { ...selectedElection, type: "Election" } : null
+        }
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setElectionToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        electionName={electionToDelete?.name || ""}
       />
     </div>
   );
