@@ -122,7 +122,7 @@ export default function VotersTab() {
     setAssignedVoters((prev) => prev.filter((voter) => voter.id !== id));
   };
 
-  const filteredVoters = assignedVoters.filter((v) => selectedElection);
+  const filteredVoters = assignedVoters.filter(() => selectedElection);
 
   const assignedUserIds = useMemo(() => {
     return assignedVoters.map((voter) => voter.id);
