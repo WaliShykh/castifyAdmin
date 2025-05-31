@@ -31,6 +31,7 @@ export default function App() {
             />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/voters" element={<VotersPage />} />
+            <Route path="/castVote" element={<ElectionResults />} />
           </Route>
 
           <Route path="/signin" element={<SignIn />} />
