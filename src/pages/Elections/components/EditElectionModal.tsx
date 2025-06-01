@@ -71,37 +71,71 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [allCandidates, setAllCandidates] = useState<Candidate[]>([]);
   const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
 
+  const fetchCandidates = async () => {
+    try {
+      setIsLoadingCandidates(true);
+      setError(null);
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:5174/api/candidate", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Filter out any candidates with invalid ObjectIds
+      const validCandidates = response.data.filter((candidate: Candidate) =>
+        objectIdRegex.test(candidate._id)
+      );
+      setAllCandidates(validCandidates);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to fetch candidates");
+    } finally {
+      setIsLoadingCandidates(false);
+    }
+  };
+
+  // Reset state when modal opens/closes
   useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        setIsLoadingCandidates(true);
-        setError(null);
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          "http://localhost:5174/api/candidate",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        // Filter out any candidates with invalid ObjectIds
-        const validCandidates = response.data.filter((candidate: Candidate) =>
-          objectIdRegex.test(candidate._id)
-        );
-        setAllCandidates(validCandidates);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch candidates");
-      } finally {
-        setIsLoadingCandidates(false);
-      }
-    };
-
     if (isOpen) {
       fetchCandidates();
+      if (election?.candidates) {
+        const validCandidates = election.candidates.filter((c) =>
+          objectIdRegex.test(c)
+        );
+        setSelectedCandidates(validCandidates);
+      } else {
+        setSelectedCandidates([]);
+      }
+    } else {
+      // Reset states when main modal closes
+      setIsCandidateModalOpen(false);
+      setError(null);
+      setSelectedCandidates([]);
     }
-  }, [isOpen]);
+  }, [isOpen, election]);
+
+  const handleCandidateModalClose = () => {
+    setIsCandidateModalOpen(false);
+    setError(null);
+  };
+
+  const handleCandidateModalSave = (
+    newSelectedCandidates: string[],
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    // Filter out any invalid ObjectIds before saving
+    const validCandidates = newSelectedCandidates.filter((id) =>
+      objectIdRegex.test(id)
+    );
+    if (validCandidates.length !== newSelectedCandidates.length) {
+      setError("All candidate IDs must be valid MongoDB ObjectIds");
+    } else {
+      setError(null);
+      setFieldValue("candidates", validCandidates);
+      setSelectedCandidates(validCandidates);
+    }
+  };
 
   if (!election) return null;
 
@@ -117,9 +151,7 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
     endDate: election.endDate
       ? new Date(election.endDate).toISOString().slice(0, 16)
       : "",
-    candidates:
-      election.candidates?.filter((c) => objectIdRegex.test(c)).map((c) => c) ||
-      [],
+    candidates: selectedCandidates,
   };
 
   const handleSubmit = async (values: any) => {
@@ -141,12 +173,6 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
       setIsSubmitting(true);
       setError(null);
 
-      console.log("Sending update request with data:", {
-        url: `http://localhost:5174/api/elections/${election._id}`,
-        data: formattedData,
-        electionId: election._id,
-      });
-
       const response = await axios.put(
         `http://localhost:5174/api/elections/${election._id}`,
         formattedData,
@@ -158,7 +184,6 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
         }
       );
 
-      console.log("Update response:", response.data);
       onSave(response.data);
       onClose();
     } catch (err: any) {
@@ -281,12 +306,12 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setFieldValue(
-                                      "candidates",
+                                    const newCandidates =
                                       values.candidates.filter(
                                         (id) => id !== candidateId
-                                      )
-                                    );
+                                      );
+                                    setFieldValue("candidates", newCandidates);
+                                    setSelectedCandidates(newCandidates);
                                   }}
                                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                 >
@@ -305,11 +330,8 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
                         type="button"
                         variant="outline"
                         onClick={() => setIsCandidateModalOpen(true)}
-                        disabled={isLoadingCandidates}
                       >
-                        {isLoadingCandidates
-                          ? "Loading..."
-                          : "Select Candidates"}
+                        Select Candidates
                       </Button>
                     </div>
                     {errors.candidates && touched.candidates && (
@@ -332,25 +354,10 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
 
               <CandidateSelectionModal
                 isOpen={isCandidateModalOpen}
-                onClose={() => {
-                  setIsCandidateModalOpen(false);
-                  setError(null);
-                }}
-                onSave={(selectedCandidates) => {
-                  // Filter out any invalid ObjectIds before saving
-                  const validCandidates = selectedCandidates.filter((id) =>
-                    objectIdRegex.test(id)
-                  );
-                  if (validCandidates.length !== selectedCandidates.length) {
-                    setError(
-                      "All candidate IDs must be valid MongoDB ObjectIds"
-                    );
-                  } else {
-                    setError(null);
-                  }
-                  setFieldValue("candidates", validCandidates);
-                  setIsCandidateModalOpen(false);
-                }}
+                onClose={handleCandidateModalClose}
+                onSave={(candidates) =>
+                  handleCandidateModalSave(candidates, setFieldValue)
+                }
                 candidates={allCandidates.map((c) => ({
                   value: c._id,
                   text: c.name,

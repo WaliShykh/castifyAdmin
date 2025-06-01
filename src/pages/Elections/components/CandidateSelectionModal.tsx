@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../../../components/ui/modal";
 import InputField from "../../../components/form/input/InputField";
 import Button from "../../../components/ui/button/Button";
@@ -27,10 +27,17 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
   defaultSelected = [],
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCandidates, setSelectedCandidates] = useState<string[]>(
-    defaultSelected.filter((id) => objectIdRegex.test(id))
-  );
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Update selected candidates when defaultSelected changes
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCandidates(
+        defaultSelected.filter((id) => objectIdRegex.test(id))
+      );
+    }
+  }, [defaultSelected, isOpen]);
 
   const filteredCandidates = candidates.filter((candidate) =>
     candidate.text.toLowerCase().includes(searchQuery.toLowerCase())
@@ -42,9 +49,12 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
       return;
     }
     setError(null);
-    setSelectedCandidates((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    setSelectedCandidates((prev) => {
+      const newSelection = prev.includes(value)
+        ? prev.filter((v) => v !== value)
+        : [...prev, value];
+      return newSelection;
+    });
   };
 
   const handleSave = () => {
@@ -59,11 +69,17 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
     }
 
     onSave(selectedCandidates);
+    handleClose(); // Close the modal after successful save
+  };
+
+  const handleClose = () => {
+    setSearchQuery("");
+    setError(null);
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl p-6">
+    <Modal isOpen={isOpen} onClose={handleClose} className="max-w-2xl p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
           Select Candidates
@@ -98,7 +114,7 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
               }`}
               onClick={() => handleSelect(candidate.value)}
             >
-              <div className="flex items-center justify-center w-5 h-5 mr-3 border rounded">
+              <div className="flex items-center dark:text-white justify-center w-5 h-5 mr-3 border rounded">
                 {selectedCandidates.includes(candidate.value) && (
                   <svg
                     className="w-3 h-3 text-primary"
@@ -121,11 +137,11 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={handleClose}>
             Cancel
           </Button>
           <Button type="button" onClick={handleSave}>
-            Save Selection
+            Apply Selection
           </Button>
         </div>
       </div>

@@ -230,7 +230,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {voters.map((voter) => (
                     <tr
-                      key={voter.id}
+                      key={`voter-${voter.id}`}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/30"
                     >
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -246,7 +246,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-white h-[300px] overflow-y-auto dark:bg-white/[0.02] shadow-sm rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-white/[0.02] shadow-sm rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-gray-700">
               <h3 className="text-lg font-medium text-gray-800 dark:text-white">
                 Candidates List
@@ -267,7 +267,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {candidates.map((candidate) => (
                     <tr
-                      key={candidate.id}
+                      key={`candidate-${candidate.id}`}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/30"
                     >
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -321,7 +321,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
 
                       return (
                         <tr
-                          key={result.candidateId}
+                          key={`result-${result.candidateId}`}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700/30"
                         >
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-white">
