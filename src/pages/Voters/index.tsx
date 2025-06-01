@@ -1,141 +1,253 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { X, Eye, Trash2 } from "lucide-react";
 import { Modal } from "../../components/ui/modal";
 
-const elections = [
-  { id: "e1", title: "Presidential Election 2025" },
-  { id: "e2", title: "Class Representative Election" },
-];
+interface Election {
+  _id: string;
+  name: string;
+}
 
-const users = [
-  {
-    id: "u1",
-    name: "John Doe",
-    email: "johndoe@email.com",
-  },
-  {
-    id: "u2",
-    name: "Sarah Khan",
-    email: "sarah@email.com",
-  },
-  {
-    id: "u3",
-    name: "Ali Raza",
-    email: "ali@email.com",
-  },
-  {
-    id: "u4",
-    name: "Fatima Ahmed",
-    email: "fatima@email.com",
-  },
-  {
-    id: "u5",
-    name: "Mohammed Ali",
-    email: "mohammed@email.com",
-  },
-  {
-    id: "u6",
-    name: "Ayesha Khan",
-    email: "ayesha@email.com",
-  },
-  {
-    id: "u7",
-    name: "Maya Khan",
-    email: "maya@email.com",
-  },
-];
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dob: string;
+  country: string;
+  gender: string;
+  role: string;
+  agreedToTerms: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const initialAssignedVoters = [
-  {
-    id: "u1",
-    name: "John Doe",
-    email: "johndoe@email.com",
-    votedAt: "2025-05-25T11:35:00Z",
-    status: "voted",
-  },
-  {
-    id: "u2",
-    name: "Sarah Khan",
-    email: "sarah@email.com",
-    votedAt: null,
-    status: "pending",
-  },
-  {
-    id: "u3",
-    name: "Ali Raza",
-    email: "ali@email.com",
-    votedAt: "2025-05-26T09:15:00Z",
-    status: "voted",
-  },
-  {
-    id: "u4",
-    name: "Fatima Ahmed",
-    email: "fatima@email.com",
-    votedAt: null,
-    status: "pending",
-  },
-  {
-    id: "u5",
-    name: "Mohammed Ali",
-    email: "mohammed@email.com",
-    votedAt: "2025-05-25T14:20:00Z",
-    status: "voted",
-  },
-  {
-    id: "u6",
-    name: "Ayesha Khan",
-    email: "ayesha@email.com",
-    votedAt: null,
-    status: "pending",
-  },
-  {
-    id: "u7",
-    name: "Maya Khan",
-    email: "maya@email.com",
-    votedAt: null,
-    status: "pending",
-  },
-];
+interface AssignedVoter {
+  _id: string;
+  name: string;
+  email: string;
+  votedAt: string | null;
+  status: "voted" | "pending";
+}
 
 export default function VotersTab() {
+  const [elections, setElections] = useState<Election[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  //@ts-ignore
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  //@ts-ignore
+  const [isLoadingVoters, setIsLoadingVoters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedElection, setSelectedElection] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [assignedVoters, setAssignedVoters] = useState(initialAssignedVoters);
+  const [assignedVoters, setAssignedVoters] = useState<AssignedVoter[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [modalUser, setModalUser] = useState<any>(null);
+  const [modalUser, setModalUser] = useState<AssignedVoter | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleAssign = () => {
-    const newAssignments = users
-      .filter((user) => selectedUsers.includes(user.id))
-      .map((user) => ({
-        ...user,
-        votedAt: null,
-        status: "pending",
-      }));
-    setAssignedVoters((prev) => [...prev, ...newAssignments]);
-    setSelectedUsers([]);
-    setSearchQuery("");
+  useEffect(() => {
+    const fetchElections = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "http://localhost:5174/api/voters/elections",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setElections(data);
+      } catch (error) {
+        console.error("Error fetching elections:", error);
+        setError("Failed to load elections. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchUsers = async () => {
+      try {
+        setIsLoadingUsers(true);
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5174/api/user/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setError("Failed to load users. Please try again later.");
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    fetchElections();
+    fetchUsers();
+  }, []);
+
+  // Fetch voter status when election changes
+  const fetchVoterStatus = async () => {
+    if (!selectedElection) {
+      setAssignedVoters([]);
+      return;
+    }
+
+    try {
+      setIsLoadingVoters(true);
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:5174/api/voters/voters/${selectedElection}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAssignedVoters(data);
+    } catch (error) {
+      console.error("Error fetching voter status:", error);
+      setError("Failed to load voter status. Please try again later.");
+    } finally {
+      setIsLoadingVoters(false);
+    }
   };
 
-  const handleRevoke = (id: string) => {
-    setAssignedVoters((prev) => prev.filter((voter) => voter.id !== id));
+  useEffect(() => {
+    fetchVoterStatus();
+  }, [selectedElection]);
+
+  const handleRevoke = async (id: string) => {
+    if (!selectedElection) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:5174/api/voters/voters/${selectedElection}/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Refresh the voter list after successful deletion
+      await fetchVoterStatus();
+    } catch (error) {
+      console.error("Error revoking voter:", error);
+      setError("Failed to revoke voter. Please try again later.");
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!selectedElection) {
+      setError("Please select an election first");
+      return;
+    }
+
+    if (selectedUsers.length === 0) {
+      setError("Please select at least one voter");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      console.log("Selected Election:", selectedElection);
+      console.log("Selected Users:", selectedUsers);
+
+      const response = await fetch(
+        `http://localhost:5174/api/voters/assign/${selectedElection}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            voterIds: selectedUsers,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("Error Response:", errorData);
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Success Response:", data);
+
+      // Refresh the voter list after successful assignment
+      await fetchVoterStatus();
+
+      setSelectedUsers([]);
+      setSearchQuery("");
+      setError(null);
+    } catch (error) {
+      console.error("Error assigning voters:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to assign voters. Please try again later."
+      );
+    }
+  };
+
+  const handleElectionChange = (electionId: string) => {
+    console.log("Election Changed:", electionId);
+    setSelectedElection(electionId);
+    setSelectedUsers([]); // Clear selected users when election changes
   };
 
   const filteredVoters = assignedVoters.filter(() => selectedElection);
 
   const assignedUserIds = useMemo(() => {
-    return assignedVoters.map((voter) => voter.id);
+    return assignedVoters.map((voter) => voter._id);
   }, [assignedVoters]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
       const matchesSearch =
         searchQuery === "" ||
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fullName.includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const isNotAssigned = !assignedUserIds.includes(user.id);
+      const isNotAssigned = !assignedUserIds.includes(user._id);
 
       return matchesSearch && isNotAssigned;
     });
@@ -150,15 +262,28 @@ export default function VotersTab() {
         <select
           className="w-full p-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
           value={selectedElection}
-          onChange={(e) => setSelectedElection(e.target.value)}
+          onChange={(e) => handleElectionChange(e.target.value)}
+          disabled={isLoading}
         >
           <option value="">-- Choose an election --</option>
-          {elections.map((el) => (
-            <option key={el.id} value={el.id}>
-              {el.title}
-            </option>
-          ))}
+          {!isLoading &&
+            !error &&
+            elections.map((el) => (
+              <option key={el._id} value={el._id}>
+                {el.name}
+              </option>
+            ))}
         </select>
+        {isLoading && (
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Loading elections...
+          </div>
+        )}
+        {error && (
+          <div className="mt-2 text-sm text-error-500 dark:text-error-400">
+            {error}
+          </div>
+        )}
       </div>
 
       {selectedElection && (
@@ -195,7 +320,9 @@ export default function VotersTab() {
           <div className="border rounded-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <div className="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {filteredUsers.length} eligible users found
+                {isLoadingVoters
+                  ? "Loading voters..."
+                  : `${filteredUsers.length} eligible users found`}
               </div>
             </div>
             <div className="max-h-[144px] overflow-y-auto">
@@ -211,18 +338,18 @@ export default function VotersTab() {
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredUsers.map((user) => (
                     <label
-                      key={user.id}
+                      key={user._id}
                       className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer h-12"
                     >
                       <input
                         type="checkbox"
-                        checked={selectedUsers.includes(user.id)}
+                        checked={selectedUsers.includes(user._id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedUsers([...selectedUsers, user.id]);
+                            setSelectedUsers([...selectedUsers, user._id]);
                           } else {
                             setSelectedUsers(
-                              selectedUsers.filter((id) => id !== user.id)
+                              selectedUsers.filter((id) => id !== user._id)
                             );
                           }
                         }}
@@ -230,7 +357,7 @@ export default function VotersTab() {
                       />
                       <div className="ml-3">
                         <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {user.name}
+                          {user.firstName} {user.lastName}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                           {user.email}
@@ -300,9 +427,9 @@ export default function VotersTab() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-900">
-                {filteredVoters.map((voter) => (
+                {assignedVoters.map((voter) => (
                   <tr
-                    key={voter.id}
+                    key={voter._id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <td className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
@@ -338,7 +465,7 @@ export default function VotersTab() {
                         <Eye size={20} />
                       </button>
                       <button
-                        onClick={() => handleRevoke(voter.id)}
+                        onClick={() => handleRevoke(voter._id)}
                         disabled={voter.status === "voted"}
                         className={`text-error-500 hover:text-error-600 dark:text-error-400 dark:hover:text-error-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-error-500 dark:disabled:hover:text-error-400`}
                         title={
@@ -399,7 +526,7 @@ export default function VotersTab() {
               Assigned Election
             </label>
             <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300">
-              {elections.find((el) => el.id === selectedElection)?.title}
+              {elections.find((el) => el._id === selectedElection)?.name}
             </div>
           </div>
 

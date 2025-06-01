@@ -69,7 +69,9 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  //@ts-ignore
   const [allCandidates, setAllCandidates] = useState<Candidate[]>([]);
+  //@ts-ignore
   const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
 
@@ -166,7 +168,7 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
       startDate: new Date(values.startDate).toISOString(),
       endDate: new Date(values.endDate).toISOString(),
       candidates: values.candidates,
-      status: election.status.toLowerCase(), // Convert UI status to API status
+      status: election.status.toLowerCase(),
     };
 
     try {

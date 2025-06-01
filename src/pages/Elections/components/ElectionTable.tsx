@@ -48,6 +48,7 @@ export default function ElectionTable() {
     null
   );
   const [isLoading, setIsLoading] = useState(true);
+  //@ts-ignore
   const [error, setError] = useState<string | null>(null);
 
   // Reset all modal states
