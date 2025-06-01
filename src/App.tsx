@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
 import ForgotPasswordForm from "./pages/AuthPages/ForgetPassword";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/AdminProfile";
@@ -36,7 +35,6 @@ export default function App() {
 
           <Route path="/signin" element={<SignIn />} />
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-          <Route path="/signup" element={<SignUp />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
