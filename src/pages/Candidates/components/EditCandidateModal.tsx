@@ -7,21 +7,13 @@ import Select from "../../../components/auth/components/Select";
 import Button from "../../../components/ui/button/Button";
 import { X } from "lucide-react";
 
-const mockElections = [
-  { id: 1, name: "Student Council Election 2023" },
-  { id: 2, name: "Employee Union Election" },
-  { id: 3, name: "Department Head Election" },
-  { id: 4, name: "Class Representative Election" },
-  { id: 5, name: "Faculty Senate Election" },
-];
-
 interface Candidate {
-  id: number;
+  _id: string;
   name: string;
-  election: string;
-  votes: number;
-  status: "Active" | "Inactive";
+  party: string;
   image: string;
+  status: string;
+  recentElection: string;
 }
 
 interface EditCandidateModalProps {
@@ -33,9 +25,8 @@ interface EditCandidateModalProps {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  election: Yup.string().required("Election is required"),
+  party: Yup.string().required("Party is required"),
   image: Yup.string().required("Image URL is required"),
-  status: Yup.string().required("Status is required"),
 });
 
 const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
@@ -51,12 +42,45 @@ const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
     setImagePreview(url);
   };
 
-  const handleSubmit = (values: any) => {
-    const updatedCandidate = {
-      ...candidate,
-      ...values,
-    };
-    onSave(updatedCandidate);
+  const handleSubmit = async (values: any) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(
+        `http://localhost:5174/api/candidate/${candidate._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: values.name,
+            party: values.party,
+            image: values.image,
+            status: candidate.status,
+            recentElection: candidate.recentElection,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Failed to update candidate");
+      }
+
+      const updatedCandidate = await response.json();
+      onSave(updatedCandidate);
+      onClose();
+    } catch (error) {
+      console.error("Error updating candidate:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to update candidate"
+      );
+    }
   };
 
   return (
@@ -76,9 +100,8 @@ const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
       <Formik
         initialValues={{
           name: candidate.name,
-          election: candidate.election,
+          party: candidate.party,
           image: candidate.image,
-          status: candidate.status,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -106,28 +129,22 @@ const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
 
             <div>
               <label
-                htmlFor="election"
+                htmlFor="party"
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Election
+                Party
               </label>
-              <Select
-                options={[
-                  { value: "", label: "Select an election" },
-                  ...mockElections.map((election) => ({
-                    value: election.name,
-                    label: election.name,
-                  })),
-                ]}
-                placeholder="Select an election"
-                onChange={(value: string) => setFieldValue("election", value)}
+              <Field
+                as={InputField}
+                id="party"
+                name="party"
+                placeholder="Enter party name"
                 className={
-                  errors.election && touched.election ? "border-red-500" : ""
+                  errors.party && touched.party ? "border-red-500" : ""
                 }
-                defaultValue={candidate.election}
               />
-              {errors.election && touched.election && (
-                <p className="mt-1 text-xs text-red-500">{errors.election}</p>
+              {errors.party && touched.party && (
+                <p className="mt-1 text-xs text-red-500">{errors.party}</p>
               )}
             </div>
 
@@ -167,30 +184,6 @@ const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
                     }}
                   />
                 </div>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="status"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Status
-              </label>
-              <Select
-                options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Inactive", label: "Inactive" },
-                ]}
-                placeholder="Select status"
-                onChange={(value: string) => setFieldValue("status", value)}
-                className={
-                  errors.status && touched.status ? "border-red-500" : ""
-                }
-                defaultValue={candidate.status}
-              />
-              {errors.status && touched.status && (
-                <p className="mt-1 text-xs text-red-500">{errors.status}</p>
               )}
             </div>
 

@@ -10,20 +10,21 @@ import {
 } from "../../../components/ui/table";
 import ViewCandidateModal from "./ViewCandidateModal";
 import EditCandidateModal from "./EditCandidateModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface Candidate {
-  id: number;
+  _id: string;
   name: string;
-  election: string;
-  votes: number;
-  status: "Active" | "Inactive";
+  party: string;
   image: string;
+  status: string;
+  recentElection: string;
 }
 
 interface CandidateTableProps {
   candidates: Candidate[];
   onEdit: (candidate: Candidate) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 const CandidateTable: React.FC<CandidateTableProps> = ({
@@ -36,6 +37,7 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
   );
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleViewClick = (candidate: Candidate) => {
     setSelectedCandidate(candidate);
@@ -47,9 +49,14 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteClick = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this candidate?")) {
-      onDelete(id);
+  const handleDeleteClick = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedCandidate) {
+      onDelete(selectedCandidate._id);
     }
   };
 
@@ -59,10 +66,10 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
   };
 
   const getStatusColor = (status: string): "success" | "error" | "info" => {
-    switch (status) {
-      case "Active":
+    switch (status.toLowerCase()) {
+      case "active":
         return "success";
-      case "Inactive":
+      case "inactive":
         return "error";
       default:
         return "info";
@@ -92,13 +99,13 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Recent Elections
+                  Party
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Votes
+                  Recent Elections
                 </TableCell>
                 <TableCell
                   isHeader
@@ -117,7 +124,7 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
 
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {candidates.map((candidate) => (
-                <TableRow key={candidate.id}>
+                <TableRow key={candidate._id}>
                   <TableCell className="py-3">
                     <div className="flex items-center">
                       <img
@@ -133,10 +140,10 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 dark:text-gray-400">
-                    {candidate.election}
+                    {candidate.party}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 dark:text-gray-400">
-                    {candidate.votes}
+                    {candidate.recentElection}
                   </TableCell>
                   <TableCell className="py-3">
                     <Badge size="sm" color={getStatusColor(candidate.status)}>
@@ -160,7 +167,7 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
                         <Pencil size={18} />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(candidate.id)}
+                        onClick={() => handleDeleteClick(candidate)}
                         className="text-red-500 hover:text-red-700 transition-colors"
                         title="Delete Candidate"
                       >
@@ -215,6 +222,13 @@ const CandidateTable: React.FC<CandidateTableProps> = ({
             onClose={() => setIsEditModalOpen(false)}
             onSave={handleSaveEdit}
             candidate={selectedCandidate}
+          />
+
+          <DeleteConfirmationModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleDeleteConfirm}
+            candidateName={selectedCandidate.name}
           />
         </>
       )}

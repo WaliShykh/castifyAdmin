@@ -17,7 +17,6 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   party: Yup.string().required("Party is required"),
   image: Yup.string().required("Image URL is required"),
-  status: Yup.string().required("Status is required"),
 });
 
 const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
@@ -32,13 +31,43 @@ const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
     setImagePreview(url);
   };
 
-  const handleSubmit = (values: any) => {
-    const newCandidate = {
-      id: Math.floor(Math.random() * 10000) + 1,
-      ...values,
-      votes: 0,
-    };
-    onSave(newCandidate);
+  const handleSubmit = async (values: any) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch("http://localhost:5174/api/candidate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: values.name,
+          party: values.party,
+          image: values.image,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Authentication failed. Please login again.");
+        }
+        throw new Error("Failed to create candidate");
+      }
+
+      const newCandidate = await response.json();
+      onSave(newCandidate);
+      onClose();
+    } catch (error) {
+      console.error("Error creating candidate:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to create candidate"
+      );
+    }
   };
 
   return (
@@ -60,7 +89,6 @@ const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
           name: "",
           party: "",
           image: "",
-          status: "Active",
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -143,29 +171,6 @@ const CreateCandidateModal: React.FC<CreateCandidateModalProps> = ({
                     }}
                   />
                 </div>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="status"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Status
-              </label>
-              <Select
-                options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Inactive", label: "Inactive" },
-                ]}
-                placeholder="Select status"
-                onChange={(value: string) => setFieldValue("status", value)}
-                className={
-                  errors.status && touched.status ? "border-red-500" : ""
-                }
-              />
-              {errors.status && touched.status && (
-                <p className="mt-1 text-xs text-red-500">{errors.status}</p>
               )}
             </div>
 

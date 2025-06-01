@@ -3,12 +3,12 @@ import Badge from "../../../components/ui/badge/Badge";
 import { User, Award, Calendar, CheckCircle, XCircle } from "lucide-react";
 
 interface Candidate {
-  id: number;
+  _id: string;
   name: string;
-  election: string;
-  votes: number;
-  status: "Active" | "Inactive";
+  party: string;
   image: string;
+  status: string;
+  recentElection: string;
 }
 
 interface ViewCandidateModalProps {
@@ -23,10 +23,10 @@ const ViewCandidateModal: React.FC<ViewCandidateModalProps> = ({
   candidate,
 }) => {
   const getStatusColor = (status: string): "success" | "error" | "info" => {
-    switch (status) {
-      case "Active":
+    switch (status.toLowerCase()) {
+      case "active":
         return "success";
-      case "Inactive":
+      case "inactive":
         return "error";
       default:
         return "info";
@@ -97,30 +97,30 @@ const ViewCandidateModal: React.FC<ViewCandidateModalProps> = ({
               <Calendar className="h-5 w-5 text-purple-500 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Recent Elections
-              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Party</p>
               <p className="font-medium text-gray-800 dark:text-white">
-                {candidate.election}
+                {candidate.party}
               </p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="rounded-full bg-green-100 p-2 dark:bg-green-900/30">
-              <Award className="h-5 w-5 text-green-500 dark:text-green-400" />
+            <div className="rounded-full bg-purple-100 p-2 dark:bg-purple-900/30">
+              <Calendar className="h-5 w-5 text-purple-500 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Votes</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Recent Elections
+              </p>
               <p className="font-medium text-gray-800 dark:text-white">
-                {candidate.votes}
+                {candidate.recentElection}
               </p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
             <div className="rounded-full bg-amber-100 p-2 dark:bg-amber-900/30">
-              {candidate.status === "Active" ? (
+              {candidate.status.toLowerCase() === "active" ? (
                 <CheckCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
               ) : (
                 <XCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />

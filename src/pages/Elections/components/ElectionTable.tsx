@@ -225,12 +225,6 @@ export default function ElectionTable() {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
       <div className="max-w-full overflow-x-auto">
         {isLoading ? (
           <div className="text-center py-4">Loading elections...</div>
