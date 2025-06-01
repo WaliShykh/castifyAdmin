@@ -228,7 +228,6 @@ export default function VotersTab() {
   };
 
   const handleElectionChange = (electionId: string) => {
-    console.log("Election Changed:", electionId);
     setSelectedElection(electionId);
     setSelectedUsers([]); // Clear selected users when election changes
   };

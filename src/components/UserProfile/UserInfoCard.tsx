@@ -3,16 +3,59 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import * as Yup from "yup";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field } from "formik";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+interface UserData {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dob: string;
+  country: string;
+  gender: string;
+  role: string;
+}
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Authentication token not found");
+        return;
+      }
+
+      const response = await axios.get("http://localhost:5174/api/me/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserData(response.data);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError("Session expired. Please login again.");
+      } else {
+        setError("Failed to fetch user data");
+      }
+      console.error("Error fetching user data:", err);
+    }
+  };
 
   const validationSchema = Yup.object().shape({
     currentPassword: Yup.string()
@@ -34,17 +77,95 @@ export default function UserInfoCard() {
       .oneOf([Yup.ref("newPassword")], "Passwords must match"),
   });
 
-  const handleSave = (values: any, { setSubmitting, resetForm }: any) => {
+  const handleSave = async (
+    values: any,
+    { setSubmitting, resetForm, setErrors }: any
+  ) => {
     try {
-      console.log("Password update values:", values);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setErrors({ currentPassword: "Authentication token not found" });
+        return;
+      }
+
+      const response = await axios.patch(
+        "http://localhost:5174/api/me/change-password",
+        {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+          confirmPassword: values.confirmPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Password updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "light",
+      });
+
       resetForm();
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
+        setErrors({ currentPassword: "Session expired. Please login again." });
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
+        setErrors({ currentPassword: error.response.data.message });
+      } else {
+        toast.error("Failed to update password", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
+        setErrors({ currentPassword: "Failed to update password" });
+      }
       console.error("Error updating password:", error);
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (error) {
+    return <div className="p-5 text-red-500">{error}</div>;
+  }
+
+  if (!userData) {
+    return <div className="p-5">Loading...</div>;
+  }
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -60,7 +181,7 @@ export default function UserInfoCard() {
                 First Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Wali
+                {userData.firstName}
               </p>
             </div>
 
@@ -69,7 +190,7 @@ export default function UserInfoCard() {
                 Last Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Ahmad
+                {userData.lastName}
               </p>
             </div>
 
@@ -78,7 +199,7 @@ export default function UserInfoCard() {
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                walishykh@gmail.com
+                {userData.email}
               </p>
             </div>
 
@@ -87,7 +208,7 @@ export default function UserInfoCard() {
                 Country
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Pakistan
+                {userData.country}
               </p>
             </div>
 
@@ -96,7 +217,7 @@ export default function UserInfoCard() {
                 Gender
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Male
+                {userData.gender}
               </p>
             </div>
           </div>
@@ -148,7 +269,8 @@ export default function UserInfoCard() {
                     <div className="mb-4">
                       <Label>Current Password</Label>
                       <div className="relative">
-                        <Input
+                        <Field
+                          as={Input}
                           type={showCurrentPassword ? "text" : "password"}
                           name="currentPassword"
                           className={
@@ -181,7 +303,8 @@ export default function UserInfoCard() {
                     <div className="mb-4">
                       <Label>New Password</Label>
                       <div className="relative">
-                        <Input
+                        <Field
+                          as={Input}
                           type={showNewPassword ? "text" : "password"}
                           name="newPassword"
                           className={
@@ -212,7 +335,8 @@ export default function UserInfoCard() {
                     <div className="mb-4">
                       <Label>Confirm New Password</Label>
                       <div className="relative">
-                        <Input
+                        <Field
+                          as={Input}
                           type={showConfirmPassword ? "text" : "password"}
                           name="confirmPassword"
                           className={

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Eye, Search } from "lucide-react";
 import {
@@ -10,47 +10,66 @@ import {
 } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 
+interface Winner {
+  name: string;
+  party: string;
+  votesSecured: number;
+}
+
 interface Election {
   id: string;
   name: string;
-  status: "Upcoming" | "Ongoing" | "Completed";
-  totalVotes: number;
+  status: "pending" | "active" | "completed";
   startDate: string;
   endDate: string;
+  totalCandidates: number;
+  totalVotesCast: number;
+  winner: Winner;
 }
-
-const mockElections: Election[] = [
-  {
-    id: "1",
-    name: "Student Council Election 2024",
-    status: "Ongoing",
-    totalVotes: 450,
-    startDate: "2024-03-01T09:00:00",
-    endDate: "2024-03-02T17:00:00",
-  },
-  {
-    id: "2",
-    name: "Department Head Election",
-    status: "Completed",
-    totalVotes: 280,
-    startDate: "2024-02-15T09:00:00",
-    endDate: "2024-02-16T17:00:00",
-  },
-  {
-    id: "3",
-    name: "Class Representative Election",
-    status: "Completed",
-    totalVotes: 150,
-    startDate: "2024-01-10T09:00:00",
-    endDate: "2024-01-11T17:00:00",
-  },
-];
 
 const ElectionResults = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [elections, setElections] = useState<Election[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredElections = mockElections.filter((election) =>
+  useEffect(() => {
+    const fetchElections = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+
+        const response = await fetch(
+          "http://localhost:5174/api/admin/elections",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error("Session expired. Please login again.");
+          }
+          throw new Error("Failed to fetch elections");
+        }
+        const data = await response.json();
+        setElections(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchElections();
+  }, []);
+
+  const filteredElections = elections.filter((election) =>
     election.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -60,16 +79,34 @@ const ElectionResults = () => {
 
   const getStatusColor = (status: string): "success" | "error" | "info" => {
     switch (status) {
-      case "Ongoing":
+      case "active":
         return "success";
-      case "Completed":
+      case "completed":
         return "info";
-      case "Upcoming":
+      case "pending":
         return "error";
       default:
         return "info";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500 dark:text-gray-400">
+          Loading elections...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500 dark:text-red-400">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-y-auto rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.02] sm:px-6">
@@ -126,6 +163,18 @@ const ElectionResults = () => {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
+                  Candidates
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Winner
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
                   Actions
                 </TableCell>
               </TableRow>
@@ -141,11 +190,20 @@ const ElectionResults = () => {
                   </TableCell>
                   <TableCell className="py-3">
                     <Badge size="sm" color={getStatusColor(election.status)}>
-                      {election.status}
+                      {election.status.charAt(0).toUpperCase() +
+                        election.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 dark:text-gray-400">
-                    {election.totalVotes}
+                    {election.totalVotesCast}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 dark:text-gray-400">
+                    {election.totalCandidates}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 dark:text-gray-400">
+                    {election.winner
+                      ? `${election.winner.name} (${election.winner.party})`
+                      : "No winner yet"}
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="flex space-x-3">
@@ -184,7 +242,7 @@ const ElectionResults = () => {
               No elections found
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {filteredElections.length === 0
+              {elections.length === 0
                 ? "There are no elections yet. Add your first election to get started."
                 : "No elections match your search criteria. Try adjusting your filters."}
             </p>
