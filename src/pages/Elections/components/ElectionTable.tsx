@@ -298,7 +298,7 @@ export default function ElectionTable() {
                   <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
                     {election.totalCandidates}
                   </TableCell>
-                  <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {format(
                       new Date(election.startDate),
                       "MMM dd, yyyy hh:mm a"
