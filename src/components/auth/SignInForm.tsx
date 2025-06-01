@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
@@ -15,6 +15,7 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const formik = useFormik({
@@ -48,7 +49,9 @@ export default function SignInForm() {
           theme: "light",
         });
 
-        navigate("/");
+        // Redirect to the page they tried to visit or home
+        const from = (location.state as any)?.from?.pathname || "/";
+        navigate(from, { replace: true });
       } catch (error: any) {
         toast.error(
           error.response?.data?.message || "Login failed. Please try again.",

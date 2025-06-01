@@ -77,30 +77,13 @@ export default function UserInfoCard() {
       .oneOf([Yup.ref("newPassword")], "Passwords must match"),
   });
 
-  const handleSave = async (
-    values: any,
-    { setSubmitting, resetForm, setErrors }: any
-  ) => {
+  const handleSave = async ({ setSubmitting, resetForm, setErrors }: any) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         setErrors({ currentPassword: "Authentication token not found" });
         return;
       }
-
-      const response = await axios.patch(
-        "http://localhost:5174/api/me/change-password",
-        {
-          currentPassword: values.currentPassword,
-          newPassword: values.newPassword,
-          confirmPassword: values.confirmPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
       toast.success("Password updated successfully!", {
         position: "top-right",

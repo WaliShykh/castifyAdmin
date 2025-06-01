@@ -25,6 +25,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser.user);
+    } else {
+      setUser(null);
+      // Only redirect if not already on auth pages
+      const isAuthPage =
+        window.location.pathname === "/signin" ||
+        window.location.pathname === "/forgot-password";
+      if (!isAuthPage) {
+        window.location.replace("/signin");
+      }
     }
     setLoading(false);
   }, []);
@@ -39,8 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    authService.logout();
     setUser(null);
+    authService.logout();
   };
 
   return (

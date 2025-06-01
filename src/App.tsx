@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/AuthPages/SignIn";
 import ForgotPasswordForm from "./pages/AuthPages/ForgetPassword";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -12,14 +12,21 @@ import Home from "./pages/Dashboard/Home";
 import ElectionResultView from "./pages/ElectionResults/components/ElectionResultView";
 import VotersPage from "./pages/Voters";
 import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <ScrollToTop />
         <Routes>
-          <Route element={<AppLayout />}>
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index path="/" element={<Home />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/elections" element={<Elections />} />
@@ -38,7 +45,7 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
