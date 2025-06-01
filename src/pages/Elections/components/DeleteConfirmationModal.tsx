@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../../../components/ui/modal";
 import Button from "../../../components/ui/button/Button";
 import InputField from "../../../components/form/input/InputField";
@@ -20,8 +20,27 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   const [confirmText, setConfirmText] = useState("");
   const isConfirmed = confirmText.toLowerCase() === "confirm";
 
+  // Reset confirm text when modal opens or closes
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmText("");
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setConfirmText("");
+    onClose();
+  };
+
+  const handleConfirm = () => {
+    if (isConfirmed) {
+      onConfirm();
+      setConfirmText("");
+    }
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-md p-6">
+    <Modal isOpen={isOpen} onClose={handleClose} className="max-w-md p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
           Delete Election
@@ -52,7 +71,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         </div>
 
         <div className="flex justify-end space-x-3">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={handleClose}>
             Cancel
           </Button>
           <Button
@@ -62,7 +81,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
                 ? "bg-red-500 hover:bg-red-600"
                 : "bg-gray-300 cursor-not-allowed"
             } text-white`}
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={!isConfirmed}
           >
             Delete

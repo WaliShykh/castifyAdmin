@@ -16,6 +16,9 @@ interface CandidateSelectionModalProps {
   defaultSelected?: string[];
 }
 
+// MongoDB ObjectId validation regex
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
 const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
   isOpen,
   onClose,
@@ -24,20 +27,37 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
   defaultSelected = [],
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCandidates, setSelectedCandidates] =
-    useState<string[]>(defaultSelected);
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>(
+    defaultSelected.filter((id) => objectIdRegex.test(id))
+  );
+  const [error, setError] = useState<string | null>(null);
 
   const filteredCandidates = candidates.filter((candidate) =>
     candidate.text.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelect = (value: string) => {
+    if (!objectIdRegex.test(value)) {
+      setError("Invalid candidate ID format");
+      return;
+    }
+    setError(null);
     setSelectedCandidates((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
 
   const handleSave = () => {
+    // Validate all selected candidates before saving
+    const invalidCandidates = selectedCandidates.filter(
+      (id) => !objectIdRegex.test(id)
+    );
+
+    if (invalidCandidates.length > 0) {
+      setError("All candidate IDs must be valid MongoDB ObjectIds");
+      return;
+    }
+
     onSave(selectedCandidates);
     onClose();
   };
@@ -52,6 +72,12 @@ const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = ({
           Search and select candidates for the election
         </p>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         <InputField

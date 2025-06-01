@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../../../components/ui/modal";
 import InputField from "../../../components/form/input/InputField";
 import Button from "../../../components/ui/button/Button";
 import { Formik, Form as FormikForm, Field } from "formik";
 import * as Yup from "yup";
 import CandidateSelectionModal from "./CandidateSelectionModal";
+import axios from "axios";
 
 interface CreateElectionModalProps {
   isOpen: boolean;
@@ -12,17 +13,10 @@ interface CreateElectionModalProps {
   onSave: (electionData: any) => void;
 }
 
-const mockUsers = [
-  { value: "user1", text: "John Doe" },
-  { value: "user2", text: "Jane Smith" },
-  { value: "user3", text: "Robert Johnson" },
-  { value: "user4", text: "Emily Davis" },
-  { value: "user5", text: "Michael Wilson" },
-  { value: "user6", text: "Sarah Brown" },
-  { value: "user7", text: "David Miller" },
-  { value: "user8", text: "Olivia Taylor" },
-  { value: "user9", text: "Daniel Anderson" },
-];
+interface Candidate {
+  _id: string;
+  name: string;
+}
 
 const validationSchema = Yup.object().shape({
   name: Yup.string()
@@ -40,7 +34,9 @@ const validationSchema = Yup.object().shape({
         return new Date(value) > new Date(startDate);
       }
     ),
-  candidates: Yup.array().min(1, "At least one candidate must be selected"),
+  candidates: Yup.array()
+    .min(1, "At least one candidate must be selected")
+    .of(Yup.string().required("Candidate ID is required")),
 });
 
 const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
@@ -49,6 +45,11 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
   onSave,
 }) => {
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
+  //@ts-ignore
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
 
   const initialValues = {
     name: "",
@@ -56,6 +57,65 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
     startDate: "",
     endDate: "",
     candidates: [] as string[],
+  };
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        setIsLoadingCandidates(true);
+        const token = localStorage.getItem("token"); // Get token from localStorage
+        const response = await axios.get(
+          "http://localhost:5174/api/candidate",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setCandidates(response.data);
+      } catch (err) {
+        console.error("Failed to fetch candidates:", err);
+        setError("Failed to load candidates");
+      } finally {
+        setIsLoadingCandidates(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchCandidates();
+    }
+  }, [isOpen]);
+
+  const handleSubmit = async (values: any, { setSubmitting }: any) => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const token = localStorage.getItem("token"); // Get token from localStorage
+      const submissionData = {
+        name: values.name,
+        startDate: new Date(values.startDate).toISOString(),
+        endDate: new Date(values.endDate).toISOString(),
+        candidates: values.candidates,
+      };
+
+      const response = await axios.post(
+        "http://localhost:5174/api/elections",
+        submissionData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      onSave(response.data);
+      setSubmitting(false);
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to create election");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -70,27 +130,18 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
           </p>
         </div>
 
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            const submissionData = {
-              ...values,
-              status: "Upcoming",
-              startDate: values.startDate
-                ? new Date(values.startDate).toISOString().split("T")[0]
-                : "",
-              endDate: values.endDate
-                ? new Date(values.endDate).toISOString().split("T")[0]
-                : "",
-            };
-
-            onSave(submissionData);
-            setSubmitting(false);
-            onClose();
-          }}
+          onSubmit={handleSubmit}
         >
-          {({ errors, touched, setFieldValue, values }) => (
+          {({ errors, touched, setFieldValue, values, isSubmitting }) => (
             <>
               <FormikForm className="space-y-5">
                 <div>
@@ -153,15 +204,15 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                       <div className="flex flex-wrap gap-2">
                         {values.candidates.length > 0 ? (
                           values.candidates.map((candidateId) => {
-                            const candidate = mockUsers.find(
-                              (user) => user.value === candidateId
+                            const candidate = candidates.find(
+                              (c) => c._id === candidateId
                             );
                             return (
                               <div
                                 key={candidateId}
                                 className="flex items-center gap-2 px-2 py-1 text-sm bg-gray-100 rounded-full dark:bg-gray-800"
                               >
-                                <span>{candidate?.text}</span>
+                                <span>{candidate?.name}</span>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -189,8 +240,11 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                         type="button"
                         variant="outline"
                         onClick={() => setIsCandidateModalOpen(true)}
+                        disabled={isLoadingCandidates}
                       >
-                        Select Candidates
+                        {isLoadingCandidates
+                          ? "Loading..."
+                          : "Select Candidates"}
                       </Button>
                     </div>
                     {errors.candidates && touched.candidates && (
@@ -205,7 +259,9 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                   <Button type="button" variant="outline" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button type="submit">Create Election</Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating..." : "Create Election"}
+                  </Button>
                 </div>
               </FormikForm>
 
@@ -216,7 +272,10 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                   setFieldValue("candidates", selectedCandidates);
                   setIsCandidateModalOpen(false);
                 }}
-                candidates={mockUsers}
+                candidates={candidates.map((c) => ({
+                  value: c._id,
+                  text: c.name,
+                }))}
                 defaultSelected={values.candidates}
               />
             </>

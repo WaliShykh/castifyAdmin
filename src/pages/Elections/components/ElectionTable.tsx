@@ -7,142 +7,204 @@ import {
 } from "../../../components/ui/table";
 import Badge from "../../../components/ui/badge/Badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateElectionButton from "./CreateElectionButton";
 import ViewElectionModal from "./ViewElectionModal";
 import EditElectionModal from "./EditElectionModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import axios from "axios";
+import { format } from "date-fns";
 
-interface Election {
-  id: number;
+interface Candidate {
+  _id: string;
   name: string;
-  status: "Upcoming" | "Ongoing" | "Ended";
-  totalCandidates: number;
-  totalVoters: number;
-  startDate: string;
-  endDate: string;
-  voters?: { id: string; name: string }[];
-  candidates?: { id: string; name: string }[];
-  results?: { candidateId: string; votes: number }[];
 }
 
-const tableData: Election[] = [
-  {
-    id: 1,
-    name: "Student Council Election 2023",
-    status: "Upcoming",
-    totalCandidates: 5,
-    totalVoters: 1200,
-    startDate: "2023-10-15",
-    endDate: "2023-10-20",
-  },
-  {
-    id: 2,
-    name: "Employee Union Election",
-    status: "Ongoing",
-    totalCandidates: 3,
-    totalVoters: 500,
-    startDate: "2023-10-10",
-    endDate: "2023-10-15",
-  },
-  {
-    id: 3,
-    name: "Department Head Election",
-    status: "Ended",
-    totalCandidates: 4,
-    totalVoters: 300,
-    startDate: "2023-09-01",
-    endDate: "2023-09-05",
-  },
-  {
-    id: 4,
-    name: "Class Representative Election",
-    status: "Upcoming",
-    totalCandidates: 8,
-    totalVoters: 800,
-    startDate: "2023-11-01",
-    endDate: "2023-11-05",
-  },
-  {
-    id: 5,
-    name: "Faculty Senate Election",
-    status: "Ongoing",
-    totalCandidates: 6,
-    totalVoters: 150,
-    startDate: "2023-10-12",
-    endDate: "2023-10-18",
-  },
-];
+interface Election {
+  _id: string;
+  name: string;
+  status: "pending" | "active" | "completed";
+  candidates: Candidate[];
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  updatedAt: string;
+  assignedVoters: string[];
+  totalCandidates: number;
+  totalVoters: number;
+}
 
-export default function ElectionResults() {
-  const [elections, setElections] = useState<Election[]>(tableData);
-  const [selectedElection, setSelectedElection] = useState<
-    Election | undefined
-  >(undefined);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+export default function ElectionTable() {
+  const [elections, setElections] = useState<Election[]>([]);
+  const [selectedElection, setSelectedElection] = useState<Election | null>(
+    null
+  );
+  const [modalState, setModalState] = useState({
+    view: false,
+    edit: false,
+    delete: false,
+  });
   const [electionToDelete, setElectionToDelete] = useState<Election | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset all modal states
+  const resetModalState = () => {
+    setModalState({
+      view: false,
+      edit: false,
+      delete: false,
+    });
+    setSelectedElection(null);
+    setElectionToDelete(null);
+    setError(null);
+  };
+
+  const fetchElections = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:5174/api/elections", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setElections(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to fetch elections");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchElections();
+  }, []);
 
   const handleViewClick = (election: Election) => {
-    setSelectedElection(election);
-    setIsViewModalOpen(true);
+    resetModalState(); // Reset all modal states first
+    // Transform API election to view modal format
+    const viewElection = {
+      id: parseInt(election._id),
+      name: election.name,
+      status: mapApiStatusToUiStatus(election.status),
+      totalCandidates: election.totalCandidates,
+      totalVoters: election.totalVoters,
+      startDate: election.startDate,
+      endDate: election.endDate,
+      candidates: election.candidates.map((c) => ({ id: c._id, name: c.name })),
+      voters: election.assignedVoters.map((id) => ({
+        id,
+        name: `Voter ${id}`,
+      })),
+      results: [],
+    };
+    setSelectedElection(viewElection as any);
+    setModalState((prev) => ({ ...prev, view: true }));
   };
 
   const handleEditClick = (election: Election) => {
-    setSelectedElection(election);
-    setIsEditModalOpen(true);
+    resetModalState(); // Reset all modal states first
+    // Transform API election to edit modal format
+    const editElection = {
+      _id: election._id,
+      name: election.name,
+      status: mapApiStatusToUiStatus(election.status),
+      totalCandidates: election.totalCandidates,
+      totalVoters: election.totalVoters,
+      startDate: election.startDate,
+      endDate: election.endDate,
+      type: "Election",
+      candidates: election.candidates.map((c) => c._id),
+    };
+    setSelectedElection(editElection as any);
+    setModalState((prev) => ({ ...prev, edit: true }));
   };
 
   const handleDeleteClick = (election: Election) => {
+    resetModalState(); // Reset all modal states first
     setElectionToDelete(election);
-    setIsDeleteModalOpen(true);
+    setModalState((prev) => ({ ...prev, delete: true }));
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (electionToDelete) {
-      handleDeleteElection(electionToDelete.id);
-      setIsDeleteModalOpen(false);
-      setElectionToDelete(null);
+      try {
+        const token = localStorage.getItem("token");
+        await axios.delete(
+          `http://localhost:5174/api/elections/${electionToDelete._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        await fetchElections();
+        resetModalState();
+      } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to delete election");
+      }
     }
   };
 
-  const handleSaveElection = (electionData: any) => {
-    console.log("Saving election:", electionData);
-
-    if (electionData.id) {
-      setElections((prevElections) =>
-        prevElections.map((election) =>
-          election.id === electionData.id
-            ? { ...election, ...electionData }
-            : election
-        )
-      );
-    } else {
-      const newElection: Election = {
-        id:
-          elections.length > 0
-            ? Math.max(...elections.map((e) => e.id)) + 1
-            : 1,
-        name: electionData.name,
-        status: electionData.status || "Upcoming",
-        totalCandidates: electionData.candidates?.length || 0,
-        totalVoters: electionData.voters?.length || 0,
-        startDate: electionData.startDate || "",
-        endDate: electionData.endDate || "",
-      };
-      setElections((prevElections) => [...prevElections, newElection]);
+  const handleSaveElection = async (electionData: any) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (electionData._id) {
+        // Update existing election
+        await axios.put(
+          `http://localhost:5174/api/elections/${electionData._id}`,
+          electionData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        // Create new election
+        await axios.post("http://localhost:5174/api/elections", electionData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+      await fetchElections();
+      resetModalState();
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to save election");
     }
   };
 
-  const handleDeleteElection = (id: number) => {
-    console.log("Deleting election:", id);
+  const mapApiStatusToUiStatus = (
+    status: string
+  ): "Upcoming" | "Ongoing" | "Ended" => {
+    switch (status) {
+      case "pending":
+        return "Upcoming";
+      case "active":
+        return "Ongoing";
+      case "completed":
+        return "Ended";
+      default:
+        return "Upcoming";
+    }
+  };
 
-    setElections((prevElections) =>
-      prevElections.filter((election) => election.id !== id)
-    );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "info";
+      case "active":
+        return "warning";
+      case "completed":
+        return "success";
+      default:
+        return "info";
+    }
   };
 
   return (
@@ -151,149 +213,148 @@ export default function ElectionResults() {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
           Elections
         </h2>
-        <CreateElectionButton onElectionCreated={handleSaveElection} />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchElections}
+            className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md transition-colors"
+            title="Refresh elections list"
+          >
+            Refresh
+          </button>
+          <CreateElectionButton onElectionCreated={handleSaveElection} />
+        </div>
       </div>
 
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
       <div className="max-w-full overflow-x-auto">
-        <Table>
-          <TableHeader className="border-gray-100 dark:border-gray-800">
-            <TableRow>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Election Name
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-6 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Status
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-4 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Total Candidates
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Total Voters
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-5 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Start Date
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-5 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                End Date
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 px-8 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {elections.map((election) => (
-              <TableRow key={election.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {election.name}
-                      </p>
-                    </div>
-                  </div>
+        {isLoading ? (
+          <div className="text-center py-4">Loading elections...</div>
+        ) : (
+          <Table>
+            <TableHeader className="border-gray-100 dark:border-gray-800">
+              <TableRow>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Election Name
                 </TableCell>
-
-                <TableCell className="py-3 px-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      election.status === "Ended"
-                        ? "success"
-                        : election.status === "Ongoing"
-                        ? "warning"
-                        : "info"
-                    }
-                  >
-                    {election.status}
-                  </Badge>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Status
                 </TableCell>
-                <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {election.totalCandidates}
+                <TableCell
+                  isHeader
+                  className="py-3 px-4 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Total Candidates
                 </TableCell>
-                <TableCell className="py-3 px-2 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {election.totalVoters}
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Start Date
                 </TableCell>
-                <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {election.startDate}
+                <TableCell
+                  isHeader
+                  className="py-3 px-5 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  End Date
                 </TableCell>
-                <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {election.endDate}
-                </TableCell>
-                <TableCell className="py-3 px-8 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleViewClick(election)}
-                      className="text-blue-500 hover:text-blue-700 transition-colors"
-                      title="View Election"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(election)}
-                      className="text-amber-500 hover:text-amber-700 transition-colors"
-                      title="Edit Election"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(election)}
-                      className="text-red-500 hover:text-red-700 transition-colors"
-                      title="Delete Election"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+                <TableCell
+                  isHeader
+                  className="py-3 px-8 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Actions
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {elections.map((election) => (
+                <TableRow key={election._id} className="">
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {election.name}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-3 px-4 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <Badge size="sm" color={getStatusColor(election.status)}>
+                      {mapApiStatusToUiStatus(election.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {election.totalCandidates}
+                  </TableCell>
+                  <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {format(
+                      new Date(election.startDate),
+                      "MMM dd, yyyy hh:mm a"
+                    )}
+                  </TableCell>
+                  <TableCell className="py-3 px-5 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {format(new Date(election.endDate), "MMM dd, yyyy hh:mm a")}
+                  </TableCell>
+                  <TableCell className="py-3 px-8 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleViewClick(election)}
+                        className="text-blue-500 hover:text-blue-700 transition-colors"
+                        title="View Election"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleEditClick(election)}
+                        className="text-yellow-500 hover:text-yellow-700 transition-colors"
+                        title="Edit Election"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(election)}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        title="Delete Election"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       <ViewElectionModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        election={selectedElection || null}
+        isOpen={modalState.view}
+        onClose={() => resetModalState()}
+        election={selectedElection as any}
       />
 
       <EditElectionModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        isOpen={modalState.edit}
+        onClose={() => resetModalState()}
         onSave={handleSaveElection}
-        election={
-          selectedElection ? { ...selectedElection, type: "Election" } : null
-        }
+        election={selectedElection as any}
       />
 
       <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setElectionToDelete(null);
-        }}
+        isOpen={modalState.delete}
+        onClose={() => resetModalState()}
         onConfirm={handleDeleteConfirm}
         electionName={electionToDelete?.name || ""}
       />

@@ -218,7 +218,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
+                  <tr key="voters-header">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       ID
                     </th>
@@ -255,7 +255,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
+                  <tr key="candidates-header">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       ID
                     </th>
@@ -293,7 +293,7 @@ const ViewElectionModal: React.FC<ViewElectionModalProps> = ({
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700/50">
-                    <tr>
+                    <tr key="results-header">
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Candidate
                       </th>
