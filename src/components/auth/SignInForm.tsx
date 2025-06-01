@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
@@ -8,11 +8,14 @@ import Input from "../form/input/InputField";
 import Checkbox from "../common/Checkbox";
 import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const formik = useFormik({
     initialValues: {
@@ -29,9 +32,11 @@ export default function SignInForm() {
     }),
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: (values) => {
-      setLoading(true);
-      setTimeout(() => {
+    onSubmit: async (values) => {
+      try {
+        setLoading(true);
+        await login(values.email, values.password);
+
         toast.success("Login successful!", {
           position: "top-right",
           autoClose: 3000,
@@ -42,9 +47,25 @@ export default function SignInForm() {
           progress: undefined,
           theme: "light",
         });
+
+        navigate("/");
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message || "Login failed. Please try again.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+          }
+        );
+      } finally {
         setLoading(false);
-        console.log("Login values:", values);
-      }, 1500);
+      }
     },
   });
 

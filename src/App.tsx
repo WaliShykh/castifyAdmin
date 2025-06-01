@@ -11,10 +11,11 @@ import ElectionResults from "./pages/ElectionResults";
 import Home from "./pages/Dashboard/Home";
 import ElectionResultView from "./pages/ElectionResults/components/ElectionResultView";
 import VotersPage from "./pages/Voters";
+import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <Routes>
@@ -22,7 +23,6 @@ export default function App() {
             <Route index path="/" element={<Home />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/elections" element={<Elections />} />
-
             <Route path="/electionResults" element={<ElectionResults />} />
             <Route
               path="/electionResults/:id"
@@ -39,6 +39,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 }
